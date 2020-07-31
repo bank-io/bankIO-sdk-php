@@ -31,11 +31,9 @@
         "friendsofphp/php-cs-fixer": "^2.12"
     },
     "autoload": {
-        "psr-4": { "BankIO\\Sdk\\" : "lib/" },
-        "files": [ "registration.php" ]
+        "psr-4": { "BankIO\\Sdk\\" : "lib/" }
     },
     "autoload-dev": {
-        "psr-4": { "BankIO\\Sdk\\" : "test/" },
-        "files": [ "registration.php" ]
+        "psr-4": { "BankIO\\Sdk\\" : "test/" }
     }
 }
