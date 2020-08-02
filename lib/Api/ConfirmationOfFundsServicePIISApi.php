@@ -5,8 +5,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -28,12 +28,17 @@
 
 namespace BankIO\Sdk\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\MultipartStream;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
+use Http\Client\HttpClient;
+use Http\Client\HttpAsyncClient;
+use Http\Message\MessageFactory;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\HttpAsyncClientDiscovery;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\StreamFactoryDiscovery;
+use Http\Client\Exception\RequestException;
+use Http\Message\StreamFactory;
+use Http\Message\MultipartStream\MultipartStreamBuilder;
+use Psr\Http\Message\RequestInterface;
 use BankIO\Sdk\ApiException;
 use BankIO\Sdk\Configuration;
 use BankIO\Sdk\HeaderSelector;
@@ -44,15 +49,30 @@ use BankIO\Sdk\ObjectSerializer;
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ConfirmationOfFundsServicePIISApi
 {
     /**
-     * @var ClientInterface
+     * @var HttpClient
      */
     protected $client;
+
+    /**
+     * @var HttpAsyncClient
+     */
+    protected $asyncClient;
+
+    /**
+     * @var MessageFactory
+     */
+    protected $messageFactory;
+
+    /**
+     * @var StreamFactory
+     */
+    protected $streamFactory;
 
     /**
      * @var Configuration
@@ -70,18 +90,23 @@ class ConfirmationOfFundsServicePIISApi
     protected $hostIndex;
 
     /**
-     * @param ClientInterface $client
+     * @param HttpClient $client
      * @param Configuration   $config
      * @param HeaderSelector  $selector
      * @param int             $host_index (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
+        HttpClient $client = null,
         Configuration $config = null,
         HeaderSelector $selector = null,
+        MessageFactory $messageFactory = null,
+        StreamFactory $streamFactory = null,
         $host_index = 0
     ) {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: HttpClientDiscovery::find();
+        // $this->asyncClient = $asyncClient ?: HttpAsyncClientDiscovery::find();
+        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
+        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
         $this->hostIndex = $host_index;
@@ -120,6 +145,8 @@ class ConfirmationOfFundsServicePIISApi
      *
      * Confirmation of funds request
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
      * @param  \BankIO\Sdk\Model\ConfirmationOfFunds $confirmation_of_funds Request body for a confirmation of funds request. (required)
@@ -132,9 +159,9 @@ class ConfirmationOfFundsServicePIISApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\InlineResponse2003|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGPIIS|\BankIO\Sdk\Model\Error403NGPIIS|\BankIO\Sdk\Model\Error404NGPIIS|\BankIO\Sdk\Model\Error405NGPIIS|\BankIO\Sdk\Model\Error409NGPIIS
      */
-    public function checkAvailabilityOfFunds($organisation, $x_request_id, $confirmation_of_funds, $authorization = null, $digest = null, $signature = null, $tpp_signature_certificate = null)
+    public function checkAvailabilityOfFunds($associative_array)
     {
-        list($response) = $this->checkAvailabilityOfFundsWithHttpInfo($organisation, $x_request_id, $confirmation_of_funds, $authorization, $digest, $signature, $tpp_signature_certificate);
+        list($response) = $this->checkAvailabilityOfFundsWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -142,6 +169,8 @@ class ConfirmationOfFundsServicePIISApi
      * Operation checkAvailabilityOfFundsWithHttpInfo
      *
      * Confirmation of funds request
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
@@ -155,14 +184,14 @@ class ConfirmationOfFundsServicePIISApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\InlineResponse2003|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGPIIS|\BankIO\Sdk\Model\Error403NGPIIS|\BankIO\Sdk\Model\Error404NGPIIS|\BankIO\Sdk\Model\Error405NGPIIS|\BankIO\Sdk\Model\Error409NGPIIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function checkAvailabilityOfFundsWithHttpInfo($organisation, $x_request_id, $confirmation_of_funds, $authorization = null, $digest = null, $signature = null, $tpp_signature_certificate = null)
+    public function checkAvailabilityOfFundsWithHttpInfo($associative_array)
     {
-        $request = $this->checkAvailabilityOfFundsRequest($organisation, $x_request_id, $confirmation_of_funds, $authorization, $digest, $signature, $tpp_signature_certificate);
+        $request = $this->checkAvailabilityOfFundsRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -357,6 +386,8 @@ class ConfirmationOfFundsServicePIISApi
      *
      * Confirmation of funds request
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
      * @param  \BankIO\Sdk\Model\ConfirmationOfFunds $confirmation_of_funds Request body for a confirmation of funds request. (required)
@@ -366,11 +397,11 @@ class ConfirmationOfFundsServicePIISApi
      * @param  string $tpp_signature_certificate The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function checkAvailabilityOfFundsAsync($organisation, $x_request_id, $confirmation_of_funds, $authorization = null, $digest = null, $signature = null, $tpp_signature_certificate = null)
+    public function checkAvailabilityOfFundsAsync($associative_array)
     {
-        return $this->checkAvailabilityOfFundsAsyncWithHttpInfo($organisation, $x_request_id, $confirmation_of_funds, $authorization, $digest, $signature, $tpp_signature_certificate)
+        return $this->checkAvailabilityOfFundsAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -383,6 +414,8 @@ class ConfirmationOfFundsServicePIISApi
      *
      * Confirmation of funds request
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
      * @param  \BankIO\Sdk\Model\ConfirmationOfFunds $confirmation_of_funds Request body for a confirmation of funds request. (required)
@@ -392,15 +425,16 @@ class ConfirmationOfFundsServicePIISApi
      * @param  string $tpp_signature_certificate The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function checkAvailabilityOfFundsAsyncWithHttpInfo($organisation, $x_request_id, $confirmation_of_funds, $authorization = null, $digest = null, $signature = null, $tpp_signature_certificate = null)
+    public function checkAvailabilityOfFundsAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\InlineResponse2003';
-        $request = $this->checkAvailabilityOfFundsRequest($organisation, $x_request_id, $confirmation_of_funds, $authorization, $digest, $signature, $tpp_signature_certificate);
+        $request = $this->checkAvailabilityOfFundsRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -436,6 +470,8 @@ class ConfirmationOfFundsServicePIISApi
     /**
      * Create request for operation 'checkAvailabilityOfFunds'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
      * @param  \BankIO\Sdk\Model\ConfirmationOfFunds $confirmation_of_funds Request body for a confirmation of funds request. (required)
@@ -445,10 +481,19 @@ class ConfirmationOfFundsServicePIISApi
      * @param  string $tpp_signature_certificate The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function checkAvailabilityOfFundsRequest($organisation, $x_request_id, $confirmation_of_funds, $authorization = null, $digest = null, $signature = null, $tpp_signature_certificate = null)
+    protected function checkAvailabilityOfFundsRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $confirmation_of_funds = array_key_exists('confirmation_of_funds', $associative_array) ? $associative_array['confirmation_of_funds'] : null;
+        $authorization = array_key_exists('authorization', $associative_array) ? $associative_array['authorization'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -527,28 +572,28 @@ class ConfirmationOfFundsServicePIISApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -564,8 +609,8 @@ class ConfirmationOfFundsServicePIISApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -583,12 +628,45 @@ class ConfirmationOfFundsServicePIISApi
     {
         $options = [];
         if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
         }
 
         return $options;
+    }
+
+    /**
+    * Safely opens a PHP stream resource using a filename.
+    *
+    * When fopen fails, PHP normally raises a warning. This function adds an
+    * error handler that checks for errors and throws an exception instead.
+    *
+    * @param string $filename File to open
+    * @param string $mode     Mode used to open the file
+    *
+    * @return resource
+    *
+    * @throws \RuntimeException if the file cannot be opened
+    */
+    protected function try_fopen(string $filename, string $mode)
+    {
+        $ex = null;
+        set_error_handler(function (int $errno, string $errstr) use ($filename, $mode, &$ex) {
+            $ex = new \RuntimeException(sprintf(
+                'Unable to open %s using mode %s: %s',
+                $filename,
+                $mode,
+                $errstr
+            ));
+        });
+
+        /** @var resource $handle */
+        $handle = fopen($filename, $mode);
+        restore_error_handler();
+
+        if ($ex) {
+            /** @var $ex \RuntimeException */
+            throw $ex;
+        }
+
+        return $handle;
     }
 }

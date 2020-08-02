@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -38,8 +38,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description This is a data element to support the declaration of additional errors in the context of [RFC7807].
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class Error400PISAdditionalErrors implements ModelInterface, ArrayAccess
 {

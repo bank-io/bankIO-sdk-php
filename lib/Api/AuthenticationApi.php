@@ -5,8 +5,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -28,12 +28,17 @@
 
 namespace BankIO\Sdk\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\MultipartStream;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
+use Http\Client\HttpClient;
+use Http\Client\HttpAsyncClient;
+use Http\Message\MessageFactory;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\HttpAsyncClientDiscovery;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\StreamFactoryDiscovery;
+use Http\Client\Exception\RequestException;
+use Http\Message\StreamFactory;
+use Http\Message\MultipartStream\MultipartStreamBuilder;
+use Psr\Http\Message\RequestInterface;
 use BankIO\Sdk\ApiException;
 use BankIO\Sdk\Configuration;
 use BankIO\Sdk\HeaderSelector;
@@ -44,15 +49,30 @@ use BankIO\Sdk\ObjectSerializer;
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class AuthenticationApi
 {
     /**
-     * @var ClientInterface
+     * @var HttpClient
      */
     protected $client;
+
+    /**
+     * @var HttpAsyncClient
+     */
+    protected $asyncClient;
+
+    /**
+     * @var MessageFactory
+     */
+    protected $messageFactory;
+
+    /**
+     * @var StreamFactory
+     */
+    protected $streamFactory;
 
     /**
      * @var Configuration
@@ -70,18 +90,23 @@ class AuthenticationApi
     protected $hostIndex;
 
     /**
-     * @param ClientInterface $client
+     * @param HttpClient $client
      * @param Configuration   $config
      * @param HeaderSelector  $selector
      * @param int             $host_index (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
+        HttpClient $client = null,
         Configuration $config = null,
         HeaderSelector $selector = null,
+        MessageFactory $messageFactory = null,
+        StreamFactory $streamFactory = null,
         $host_index = 0
     ) {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: HttpClientDiscovery::find();
+        // $this->asyncClient = $asyncClient ?: HttpAsyncClientDiscovery::find();
+        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
+        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
         $this->hostIndex = $host_index;
@@ -120,6 +145,8 @@ class AuthenticationApi
      *
      * Authenticate a user
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id A client ID obtained from the [Dashboard](https://dashboard.bankio.com/). (required)
      * @param  string $response_type The OIDC response type to use for this authentication flow. Valid choices are &#x60;code&#x60;, &#x60;id_token&#x60;, &#x60;token&#x60;, &#x60;token id_token&#x60;, &#x60;code id_token&#x60; &#x60;code token&#x60; and &#x60;code token id_token&#x60;, but a client can be configured with a more restricted set. (required)
      * @param  string $scope The space-separated identity claims to request from the end-user. Always include &#x60;openid&#x60; as a scope for compatibility with OIDC. (required)
@@ -136,15 +163,17 @@ class AuthenticationApi
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function authorize($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode = null, $nonce = null, $display = 'page', $prompt = 'login', $max_age = 0, $ui_locales = null)
+    public function authorize($associative_array)
     {
-        $this->authorizeWithHttpInfo($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode, $nonce, $display, $prompt, $max_age, $ui_locales);
+        $this->authorizeWithHttpInfo($associative_array);
     }
 
     /**
      * Operation authorizeWithHttpInfo
      *
      * Authenticate a user
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $client_id A client ID obtained from the [Dashboard](https://dashboard.bankio.com/). (required)
      * @param  string $response_type The OIDC response type to use for this authentication flow. Valid choices are &#x60;code&#x60;, &#x60;id_token&#x60;, &#x60;token&#x60;, &#x60;token id_token&#x60;, &#x60;code id_token&#x60; &#x60;code token&#x60; and &#x60;code token id_token&#x60;, but a client can be configured with a more restricted set. (required)
@@ -162,14 +191,14 @@ class AuthenticationApi
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function authorizeWithHttpInfo($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode = null, $nonce = null, $display = 'page', $prompt = 'login', $max_age = 0, $ui_locales = null)
+    public function authorizeWithHttpInfo($associative_array)
     {
-        $request = $this->authorizeRequest($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode, $nonce, $display, $prompt, $max_age, $ui_locales);
+        $request = $this->authorizeRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -208,6 +237,8 @@ class AuthenticationApi
      *
      * Authenticate a user
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id A client ID obtained from the [Dashboard](https://dashboard.bankio.com/). (required)
      * @param  string $response_type The OIDC response type to use for this authentication flow. Valid choices are &#x60;code&#x60;, &#x60;id_token&#x60;, &#x60;token&#x60;, &#x60;token id_token&#x60;, &#x60;code id_token&#x60; &#x60;code token&#x60; and &#x60;code token id_token&#x60;, but a client can be configured with a more restricted set. (required)
      * @param  string $scope The space-separated identity claims to request from the end-user. Always include &#x60;openid&#x60; as a scope for compatibility with OIDC. (required)
@@ -221,11 +252,11 @@ class AuthenticationApi
      * @param  string $ui_locales Specifies the preferred language to use on the authorization page, as a space-separated list of BCP47 language tags. Ignored at the moment. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function authorizeAsync($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode = null, $nonce = null, $display = 'page', $prompt = 'login', $max_age = 0, $ui_locales = null)
+    public function authorizeAsync($associative_array)
     {
-        return $this->authorizeAsyncWithHttpInfo($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode, $nonce, $display, $prompt, $max_age, $ui_locales)
+        return $this->authorizeAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -238,6 +269,8 @@ class AuthenticationApi
      *
      * Authenticate a user
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id A client ID obtained from the [Dashboard](https://dashboard.bankio.com/). (required)
      * @param  string $response_type The OIDC response type to use for this authentication flow. Valid choices are &#x60;code&#x60;, &#x60;id_token&#x60;, &#x60;token&#x60;, &#x60;token id_token&#x60;, &#x60;code id_token&#x60; &#x60;code token&#x60; and &#x60;code token id_token&#x60;, but a client can be configured with a more restricted set. (required)
      * @param  string $scope The space-separated identity claims to request from the end-user. Always include &#x60;openid&#x60; as a scope for compatibility with OIDC. (required)
@@ -251,15 +284,16 @@ class AuthenticationApi
      * @param  string $ui_locales Specifies the preferred language to use on the authorization page, as a space-separated list of BCP47 language tags. Ignored at the moment. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function authorizeAsyncWithHttpInfo($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode = null, $nonce = null, $display = 'page', $prompt = 'login', $max_age = 0, $ui_locales = null)
+    public function authorizeAsyncWithHttpInfo($associative_array)
     {
         $returnType = '';
-        $request = $this->authorizeRequest($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode, $nonce, $display, $prompt, $max_age, $ui_locales);
+        $request = $this->authorizeRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     return [null, $response->getStatusCode(), $response->getHeaders()];
@@ -284,6 +318,8 @@ class AuthenticationApi
     /**
      * Create request for operation 'authorize'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id A client ID obtained from the [Dashboard](https://dashboard.bankio.com/). (required)
      * @param  string $response_type The OIDC response type to use for this authentication flow. Valid choices are &#x60;code&#x60;, &#x60;id_token&#x60;, &#x60;token&#x60;, &#x60;token id_token&#x60;, &#x60;code id_token&#x60; &#x60;code token&#x60; and &#x60;code token id_token&#x60;, but a client can be configured with a more restricted set. (required)
      * @param  string $scope The space-separated identity claims to request from the end-user. Always include &#x60;openid&#x60; as a scope for compatibility with OIDC. (required)
@@ -297,10 +333,23 @@ class AuthenticationApi
      * @param  string $ui_locales Specifies the preferred language to use on the authorization page, as a space-separated list of BCP47 language tags. Ignored at the moment. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function authorizeRequest($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode = null, $nonce = null, $display = 'page', $prompt = 'login', $max_age = 0, $ui_locales = null)
+    protected function authorizeRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $client_id = array_key_exists('client_id', $associative_array) ? $associative_array['client_id'] : null;
+        $response_type = array_key_exists('response_type', $associative_array) ? $associative_array['response_type'] : null;
+        $scope = array_key_exists('scope', $associative_array) ? $associative_array['scope'] : null;
+        $redirect_uri = array_key_exists('redirect_uri', $associative_array) ? $associative_array['redirect_uri'] : null;
+        $state = array_key_exists('state', $associative_array) ? $associative_array['state'] : null;
+        $response_mode = array_key_exists('response_mode', $associative_array) ? $associative_array['response_mode'] : null;
+        $nonce = array_key_exists('nonce', $associative_array) ? $associative_array['nonce'] : null;
+        $display = array_key_exists('display', $associative_array) ? $associative_array['display'] : 'page';
+        $prompt = array_key_exists('prompt', $associative_array) ? $associative_array['prompt'] : 'login';
+        $max_age = array_key_exists('max_age', $associative_array) ? $associative_array['max_age'] : 0;
+        $ui_locales = array_key_exists('ui_locales', $associative_array) ? $associative_array['ui_locales'] : null;
+
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
             throw new \InvalidArgumentException(
@@ -481,28 +530,28 @@ class AuthenticationApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -518,8 +567,8 @@ class AuthenticationApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -531,6 +580,8 @@ class AuthenticationApi
      * Operation token
      *
      * Request Access Tokens
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $grant_type Type of grant. (required)
      * @param  string $client_id Application client ID, may be provided either within formData or using HTTP Basic Authentication. (optional)
@@ -544,9 +595,9 @@ class AuthenticationApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\Token|\BankIO\Sdk\Model\OAuth2Error|\BankIO\Sdk\Model\OAuth2Error
      */
-    public function token($grant_type, $client_id = null, $client_secret = null, $code = null, $redirect_uri = null, $scope = null, $refresh_token = null)
+    public function token($associative_array)
     {
-        list($response) = $this->tokenWithHttpInfo($grant_type, $client_id, $client_secret, $code, $redirect_uri, $scope, $refresh_token);
+        list($response) = $this->tokenWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -554,6 +605,8 @@ class AuthenticationApi
      * Operation tokenWithHttpInfo
      *
      * Request Access Tokens
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $grant_type Type of grant. (required)
      * @param  string $client_id Application client ID, may be provided either within formData or using HTTP Basic Authentication. (optional)
@@ -567,14 +620,14 @@ class AuthenticationApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\Token|\BankIO\Sdk\Model\OAuth2Error|\BankIO\Sdk\Model\OAuth2Error, HTTP status code, HTTP response headers (array of strings)
      */
-    public function tokenWithHttpInfo($grant_type, $client_id = null, $client_secret = null, $code = null, $redirect_uri = null, $scope = null, $refresh_token = null)
+    public function tokenWithHttpInfo($associative_array)
     {
-        $request = $this->tokenRequest($grant_type, $client_id, $client_secret, $code, $redirect_uri, $scope, $refresh_token);
+        $request = $this->tokenRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -689,6 +742,8 @@ class AuthenticationApi
      *
      * Request Access Tokens
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $grant_type Type of grant. (required)
      * @param  string $client_id Application client ID, may be provided either within formData or using HTTP Basic Authentication. (optional)
      * @param  string $client_secret Application secret, may be provided either within formData or using HTTP Basic Authentication. (optional)
@@ -698,11 +753,11 @@ class AuthenticationApi
      * @param  string $refresh_token The refresh token that the client wants to exchange for a new access token (refresh_token grant_type). (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function tokenAsync($grant_type, $client_id = null, $client_secret = null, $code = null, $redirect_uri = null, $scope = null, $refresh_token = null)
+    public function tokenAsync($associative_array)
     {
-        return $this->tokenAsyncWithHttpInfo($grant_type, $client_id, $client_secret, $code, $redirect_uri, $scope, $refresh_token)
+        return $this->tokenAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -715,6 +770,8 @@ class AuthenticationApi
      *
      * Request Access Tokens
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $grant_type Type of grant. (required)
      * @param  string $client_id Application client ID, may be provided either within formData or using HTTP Basic Authentication. (optional)
      * @param  string $client_secret Application secret, may be provided either within formData or using HTTP Basic Authentication. (optional)
@@ -724,15 +781,16 @@ class AuthenticationApi
      * @param  string $refresh_token The refresh token that the client wants to exchange for a new access token (refresh_token grant_type). (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function tokenAsyncWithHttpInfo($grant_type, $client_id = null, $client_secret = null, $code = null, $redirect_uri = null, $scope = null, $refresh_token = null)
+    public function tokenAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\Token';
-        $request = $this->tokenRequest($grant_type, $client_id, $client_secret, $code, $redirect_uri, $scope, $refresh_token);
+        $request = $this->tokenRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -768,6 +826,8 @@ class AuthenticationApi
     /**
      * Create request for operation 'token'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $grant_type Type of grant. (required)
      * @param  string $client_id Application client ID, may be provided either within formData or using HTTP Basic Authentication. (optional)
      * @param  string $client_secret Application secret, may be provided either within formData or using HTTP Basic Authentication. (optional)
@@ -777,10 +837,19 @@ class AuthenticationApi
      * @param  string $refresh_token The refresh token that the client wants to exchange for a new access token (refresh_token grant_type). (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function tokenRequest($grant_type, $client_id = null, $client_secret = null, $code = null, $redirect_uri = null, $scope = null, $refresh_token = null)
+    protected function tokenRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $grant_type = array_key_exists('grant_type', $associative_array) ? $associative_array['grant_type'] : null;
+        $client_id = array_key_exists('client_id', $associative_array) ? $associative_array['client_id'] : null;
+        $client_secret = array_key_exists('client_secret', $associative_array) ? $associative_array['client_secret'] : null;
+        $code = array_key_exists('code', $associative_array) ? $associative_array['code'] : null;
+        $redirect_uri = array_key_exists('redirect_uri', $associative_array) ? $associative_array['redirect_uri'] : null;
+        $scope = array_key_exists('scope', $associative_array) ? $associative_array['scope'] : null;
+        $refresh_token = array_key_exists('refresh_token', $associative_array) ? $associative_array['refresh_token'] : null;
+
         // verify the required parameter 'grant_type' is set
         if ($grant_type === null || (is_array($grant_type) && count($grant_type) === 0)) {
             throw new \InvalidArgumentException(
@@ -844,28 +913,28 @@ class AuthenticationApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -885,8 +954,8 @@ class AuthenticationApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -899,14 +968,16 @@ class AuthenticationApi
      *
      * Retrieve user profile
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\UserInfo|\BankIO\Sdk\Model\OAuth2Error|\BankIO\Sdk\Model\OAuth2Error
      */
-    public function userInfo()
+    public function userInfo($associative_array)
     {
-        list($response) = $this->userInfoWithHttpInfo();
+        list($response) = $this->userInfoWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -915,19 +986,21 @@ class AuthenticationApi
      *
      * Retrieve user profile
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\UserInfo|\BankIO\Sdk\Model\OAuth2Error|\BankIO\Sdk\Model\OAuth2Error, HTTP status code, HTTP response headers (array of strings)
      */
-    public function userInfoWithHttpInfo()
+    public function userInfoWithHttpInfo($associative_array)
     {
-        $request = $this->userInfoRequest();
+        $request = $this->userInfoRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -1042,13 +1115,15 @@ class AuthenticationApi
      *
      * Retrieve user profile
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function userInfoAsync()
+    public function userInfoAsync($associative_array)
     {
-        return $this->userInfoAsyncWithHttpInfo()
+        return $this->userInfoAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1061,17 +1136,20 @@ class AuthenticationApi
      *
      * Retrieve user profile
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function userInfoAsyncWithHttpInfo()
+    public function userInfoAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\UserInfo';
-        $request = $this->userInfoRequest();
+        $request = $this->userInfoRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -1107,12 +1185,16 @@ class AuthenticationApi
     /**
      * Create request for operation 'userInfo'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function userInfoRequest()
+    protected function userInfoRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+
 
         $resourcePath = '/api/auth/me';
         $formParams = [];
@@ -1142,28 +1224,28 @@ class AuthenticationApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -1183,8 +1265,8 @@ class AuthenticationApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -1202,12 +1284,45 @@ class AuthenticationApi
     {
         $options = [];
         if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
         }
 
         return $options;
+    }
+
+    /**
+    * Safely opens a PHP stream resource using a filename.
+    *
+    * When fopen fails, PHP normally raises a warning. This function adds an
+    * error handler that checks for errors and throws an exception instead.
+    *
+    * @param string $filename File to open
+    * @param string $mode     Mode used to open the file
+    *
+    * @return resource
+    *
+    * @throws \RuntimeException if the file cannot be opened
+    */
+    protected function try_fopen(string $filename, string $mode)
+    {
+        $ex = null;
+        set_error_handler(function (int $errno, string $errstr) use ($filename, $mode, &$ex) {
+            $ex = new \RuntimeException(sprintf(
+                'Unable to open %s using mode %s: %s',
+                $filename,
+                $mode,
+                $errstr
+            ));
+        });
+
+        /** @var resource $handle */
+        $handle = fopen($filename, $mode);
+        restore_error_handler();
+
+        if ($ex) {
+            /** @var $ex \RuntimeException */
+            throw $ex;
+        }
+
+        return $handle;
     }
 }

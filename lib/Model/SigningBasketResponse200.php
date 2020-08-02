@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -38,8 +38,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description Body of the JSON response for a successful get signing basket request.    * &#39;payments&#39;: payment initiations which shall be authorised through this signing basket.   * &#39;consents&#39;: consent objects which shall be authorised through this signing basket.   * &#39;transactionStatus&#39;: Only the codes RCVD, ACTC, RJCT are used.   * &#39;_links&#39;: The ASPSP might integrate hyperlinks to indicate next (authorisation) steps to be taken.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class SigningBasketResponse200 implements ModelInterface, ArrayAccess
 {

@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description The transaction status is filled with codes of the ISO 20022 data table: - &#39;ACCC&#39;: &#39;AcceptedSettlementCompleted&#39; -   Settlement on the creditor&#39;s account has been completed. - &#39;ACCP&#39;: &#39;AcceptedCustomerProfile&#39; -    Preceding check of technical validation was successful.    Customer profile check was also successful. - &#39;ACSC&#39;: &#39;AcceptedSettlementCompleted&#39; -    Settlement on the debtor�s account has been completed.      **Usage:** this can be used by the first agent to report to the debtor that the transaction has been completed.       **Warning:** this status is provided for transaction status reasons, not for financial information.    It can only be used after bilateral agreement. - &#39;ACSP&#39;: &#39;AcceptedSettlementInProcess&#39; -    All preceding checks such as technical validation and customer profile were successful and therefore the payment initiation has been accepted for execution. - &#39;ACTC&#39;: &#39;AcceptedTechnicalValidation&#39; -    Authentication and syntactical and semantical validation are successful. - &#39;ACWC&#39;: &#39;AcceptedWithChange&#39; -    Instruction is accepted but a change will be made, such as date or remittance not sent. - &#39;ACWP&#39;: &#39;AcceptedWithoutPosting&#39; -    Payment instruction included in the credit transfer is accepted without being posted to the creditor customer�s account. - &#39;RCVD&#39;: &#39;Received&#39; -    Payment initiation has been received by the receiving agent. - &#39;PDNG&#39;: &#39;Pending&#39; -    Payment initiation or individual transaction included in the payment initiation is pending.    Further checks and status update will be performed. - &#39;RJCT&#39;: &#39;Rejected&#39; -    Payment initiation or individual transaction included in the payment initiation has been rejected. - &#39;CANC&#39;: &#39;Cancelled&#39;   Payment initiation has been cancelled before execution   Remark: This codeis accepted as new code by ISO20022. - &#39;ACFC&#39;: &#39;AcceptedFundsChecked&#39; -   Preceding check of technical validation and customer profile was successful and an automatic funds check was positive .   Remark: This code is accepted as new code by ISO20022. - &#39;PATC&#39;: &#39;PartiallyAcceptedTechnical&#39;   Correct The payment initiation needs multiple authentications, where some but not yet all have been performed. Syntactical and semantical validations are successful.   Remark: This code is accepted as new code by ISO20022. - &#39;PART&#39;: &#39;PartiallyAccepted&#39; -   A number of transactions have been accepted, whereas another number of transactions have not yet achieved &#39;accepted&#39; status.   Remark: This code may be used only in case of bulk payments. It is only used in a situation where all mandated authorisations have been applied, but some payments have been rejected.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class TransactionStatus
 {

@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk\Model
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -33,7 +33,7 @@ namespace BankIO\Sdk\Model;
  * Interface abstracting model access.
  *
  * @package BankIO\Sdk\Model
- * @author  OpenAPI Generator team
+ * @author  bankIO
  */
 interface ModelInterface
 {

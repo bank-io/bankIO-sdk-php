@@ -23,22 +23,23 @@ Creates a confirmation of funds request at the ASPSP. Checks whether a specific 
 require_once(__DIR__ . '/vendor/autoload.php');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\ConfirmationOfFundsServicePIISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client()
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$confirmation_of_funds = new \BankIO\Sdk\Model\ConfirmationOfFunds(); // \BankIO\Sdk\Model\ConfirmationOfFunds | Request body for a confirmation of funds request.
-$authorization = 'authorization_example'; // string | This field  might be used in case where a consent was agreed between ASPSP and PSU through an OAuth2 based protocol,  facilitated by the TPP.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['confirmation_of_funds'] = new \BankIO\Sdk\Model\ConfirmationOfFunds(); // \BankIO\Sdk\Model\ConfirmationOfFunds | Request body for a confirmation of funds request.
+$associate_array['authorization'] = 'authorization_example'; // string | This field  might be used in case where a consent was agreed between ASPSP and PSU through an OAuth2 based protocol,  facilitated by the TPP.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
 
 try {
-    $result = $apiInstance->checkAvailabilityOfFunds($organisation, $x_request_id, $confirmation_of_funds, $authorization, $digest, $signature, $tpp_signature_certificate);
+    $result = $apiInstance->checkAvailabilityOfFunds($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ConfirmationOfFundsServicePIISApi->checkAvailabilityOfFunds: ', $e->getMessage(), PHP_EOL;
@@ -47,6 +48,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes

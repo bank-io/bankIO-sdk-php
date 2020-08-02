@@ -5,8 +5,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -28,12 +28,17 @@
 
 namespace BankIO\Sdk\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\MultipartStream;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
+use Http\Client\HttpClient;
+use Http\Client\HttpAsyncClient;
+use Http\Message\MessageFactory;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\HttpAsyncClientDiscovery;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\StreamFactoryDiscovery;
+use Http\Client\Exception\RequestException;
+use Http\Message\StreamFactory;
+use Http\Message\MultipartStream\MultipartStreamBuilder;
+use Psr\Http\Message\RequestInterface;
 use BankIO\Sdk\ApiException;
 use BankIO\Sdk\Configuration;
 use BankIO\Sdk\HeaderSelector;
@@ -44,15 +49,30 @@ use BankIO\Sdk\ObjectSerializer;
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class CommonServicesApi
 {
     /**
-     * @var ClientInterface
+     * @var HttpClient
      */
     protected $client;
+
+    /**
+     * @var HttpAsyncClient
+     */
+    protected $asyncClient;
+
+    /**
+     * @var MessageFactory
+     */
+    protected $messageFactory;
+
+    /**
+     * @var StreamFactory
+     */
+    protected $streamFactory;
 
     /**
      * @var Configuration
@@ -70,18 +90,23 @@ class CommonServicesApi
     protected $hostIndex;
 
     /**
-     * @param ClientInterface $client
+     * @param HttpClient $client
      * @param Configuration   $config
      * @param HeaderSelector  $selector
      * @param int             $host_index (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
+        HttpClient $client = null,
         Configuration $config = null,
         HeaderSelector $selector = null,
+        MessageFactory $messageFactory = null,
+        StreamFactory $streamFactory = null,
         $host_index = 0
     ) {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: HttpClientDiscovery::find();
+        // $this->asyncClient = $asyncClient ?: HttpAsyncClientDiscovery::find();
+        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
+        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
         $this->hostIndex = $host_index;
@@ -120,6 +145,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the consent authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -142,9 +169,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS
      */
-    public function getConsentScaStatus($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getConsentScaStatus($associative_array)
     {
-        list($response) = $this->getConsentScaStatusWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        list($response) = $this->getConsentScaStatusWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -152,6 +179,8 @@ class CommonServicesApi
      * Operation getConsentScaStatusWithHttpInfo
      *
      * Read the SCA status of the consent authorisation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
@@ -175,14 +204,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getConsentScaStatusWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getConsentScaStatusWithHttpInfo($associative_array)
     {
-        $request = $this->getConsentScaStatusRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getConsentScaStatusRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -417,6 +446,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the consent authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -436,11 +467,11 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getConsentScaStatusAsync($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getConsentScaStatusAsync($associative_array)
     {
-        return $this->getConsentScaStatusAsyncWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location)
+        return $this->getConsentScaStatusAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -453,6 +484,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the consent authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -472,15 +505,16 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getConsentScaStatusAsyncWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getConsentScaStatusAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\ScaStatusResponse';
-        $request = $this->getConsentScaStatusRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getConsentScaStatusRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -516,6 +550,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'getConsentScaStatus'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -535,10 +571,29 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function getConsentScaStatusRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    protected function getConsentScaStatusRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $consent_id = array_key_exists('consent_id', $associative_array) ? $associative_array['consent_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -676,28 +731,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -717,8 +772,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -730,6 +785,8 @@ class CommonServicesApi
      * Operation getPaymentCancellationScaStatus
      *
      * Read the SCA status of the payment cancellation's authorisation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -755,9 +812,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function getPaymentCancellationScaStatus($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentCancellationScaStatus($associative_array)
     {
-        list($response) = $this->getPaymentCancellationScaStatusWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        list($response) = $this->getPaymentCancellationScaStatusWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -765,6 +822,8 @@ class CommonServicesApi
      * Operation getPaymentCancellationScaStatusWithHttpInfo
      *
      * Read the SCA status of the payment cancellation's authorisation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -790,14 +849,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPaymentCancellationScaStatusWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentCancellationScaStatusWithHttpInfo($associative_array)
     {
-        $request = $this->getPaymentCancellationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentCancellationScaStatusRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -992,6 +1051,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the payment cancellation's authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1013,11 +1074,11 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentCancellationScaStatusAsync($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentCancellationScaStatusAsync($associative_array)
     {
-        return $this->getPaymentCancellationScaStatusAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location)
+        return $this->getPaymentCancellationScaStatusAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1030,6 +1091,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the payment cancellation's authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1051,15 +1114,16 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentCancellationScaStatusAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentCancellationScaStatusAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\ScaStatusResponse';
-        $request = $this->getPaymentCancellationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentCancellationScaStatusRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -1095,6 +1159,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'getPaymentCancellationScaStatus'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1116,10 +1182,31 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function getPaymentCancellationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    protected function getPaymentCancellationScaStatusRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -1285,28 +1372,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -1326,8 +1413,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -1339,6 +1426,8 @@ class CommonServicesApi
      * Operation getPaymentInitiationAuthorisation
      *
      * Get payment initiation authorisation sub-resources request
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -1363,9 +1452,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\Authorisations|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function getPaymentInitiationAuthorisation($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationAuthorisation($associative_array)
     {
-        list($response) = $this->getPaymentInitiationAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        list($response) = $this->getPaymentInitiationAuthorisationWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -1373,6 +1462,8 @@ class CommonServicesApi
      * Operation getPaymentInitiationAuthorisationWithHttpInfo
      *
      * Get payment initiation authorisation sub-resources request
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -1397,14 +1488,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\Authorisations|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPaymentInitiationAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationAuthorisationWithHttpInfo($associative_array)
     {
-        $request = $this->getPaymentInitiationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentInitiationAuthorisationRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -1599,6 +1690,8 @@ class CommonServicesApi
      *
      * Get payment initiation authorisation sub-resources request
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1619,11 +1712,11 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentInitiationAuthorisationAsync($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationAuthorisationAsync($associative_array)
     {
-        return $this->getPaymentInitiationAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location)
+        return $this->getPaymentInitiationAuthorisationAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -1636,6 +1729,8 @@ class CommonServicesApi
      *
      * Get payment initiation authorisation sub-resources request
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1656,15 +1751,16 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentInitiationAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationAuthorisationAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\Authorisations';
-        $request = $this->getPaymentInitiationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentInitiationAuthorisationRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -1700,6 +1796,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'getPaymentInitiationAuthorisation'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -1720,10 +1818,30 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function getPaymentInitiationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    protected function getPaymentInitiationAuthorisationRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -1875,28 +1993,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -1916,8 +2034,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -1929,6 +2047,8 @@ class CommonServicesApi
      * Operation getPaymentInitiationScaStatus
      *
      * Read the SCA status of the payment authorisation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -1954,9 +2074,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function getPaymentInitiationScaStatus($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationScaStatus($associative_array)
     {
-        list($response) = $this->getPaymentInitiationScaStatusWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        list($response) = $this->getPaymentInitiationScaStatusWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -1964,6 +2084,8 @@ class CommonServicesApi
      * Operation getPaymentInitiationScaStatusWithHttpInfo
      *
      * Read the SCA status of the payment authorisation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -1989,14 +2111,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\ScaStatusResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getPaymentInitiationScaStatusWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationScaStatusWithHttpInfo($associative_array)
     {
-        $request = $this->getPaymentInitiationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentInitiationScaStatusRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -2191,6 +2313,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the payment authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -2212,11 +2336,11 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentInitiationScaStatusAsync($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationScaStatusAsync($associative_array)
     {
-        return $this->getPaymentInitiationScaStatusAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location)
+        return $this->getPaymentInitiationScaStatusAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2229,6 +2353,8 @@ class CommonServicesApi
      *
      * Read the SCA status of the payment authorisation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -2250,15 +2376,16 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getPaymentInitiationScaStatusAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    public function getPaymentInitiationScaStatusAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\ScaStatusResponse';
-        $request = $this->getPaymentInitiationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+        $request = $this->getPaymentInitiationScaStatusRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -2294,6 +2421,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'getPaymentInitiationScaStatus'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -2315,10 +2444,31 @@ class CommonServicesApi
      * @param  string $psu_geo_location The forwarded Geo Location of the corresponding http request between PSU and TPP if available. (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function getPaymentInitiationScaStatusRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null)
+    protected function getPaymentInitiationScaStatusRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -2484,28 +2634,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -2525,8 +2675,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -2538,6 +2688,8 @@ class CommonServicesApi
      * Operation startConsentAuthorisation
      *
      * Start the authorisation process for a consent
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
@@ -2570,9 +2722,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS
      */
-    public function startConsentAuthorisation($organisation, $consent_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startConsentAuthorisation($associative_array)
     {
-        list($response) = $this->startConsentAuthorisationWithHttpInfo($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->startConsentAuthorisationWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -2580,6 +2732,8 @@ class CommonServicesApi
      * Operation startConsentAuthorisationWithHttpInfo
      *
      * Start the authorisation process for a consent
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
@@ -2612,14 +2766,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function startConsentAuthorisationWithHttpInfo($organisation, $consent_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startConsentAuthorisationWithHttpInfo($associative_array)
     {
-        $request = $this->startConsentAuthorisationRequest($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startConsentAuthorisationRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -2854,6 +3008,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for a consent
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
@@ -2882,11 +3038,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startConsentAuthorisationAsync($organisation, $consent_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startConsentAuthorisationAsync($associative_array)
     {
-        return $this->startConsentAuthorisationAsyncWithHttpInfo($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->startConsentAuthorisationAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -2899,6 +3055,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for a consent
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
@@ -2927,15 +3085,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startConsentAuthorisationAsyncWithHttpInfo($organisation, $consent_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startConsentAuthorisationAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\StartScaprocessResponse';
-        $request = $this->startConsentAuthorisationRequest($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startConsentAuthorisationRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -2971,6 +3130,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'startConsentAuthorisation'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $x_request_id ID of the request, unique to the call, as determined by the initiating party. (required)
@@ -2999,10 +3160,38 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function startConsentAuthorisationRequest($organisation, $consent_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function startConsentAuthorisationRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $consent_id = array_key_exists('consent_id', $associative_array) ? $associative_array['consent_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $tpp_redirect_preferred = array_key_exists('tpp_redirect_preferred', $associative_array) ? $associative_array['tpp_redirect_preferred'] : null;
+        $tpp_redirect_uri = array_key_exists('tpp_redirect_uri', $associative_array) ? $associative_array['tpp_redirect_uri'] : null;
+        $tpp_nok_redirect_uri = array_key_exists('tpp_nok_redirect_uri', $associative_array) ? $associative_array['tpp_nok_redirect_uri'] : null;
+        $tpp_notification_uri = array_key_exists('tpp_notification_uri', $associative_array) ? $associative_array['tpp_notification_uri'] : null;
+        $tpp_notification_content_preferred = array_key_exists('tpp_notification_content_preferred', $associative_array) ? $associative_array['tpp_notification_content_preferred'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -3165,28 +3354,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -3206,8 +3395,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -3219,6 +3408,8 @@ class CommonServicesApi
      * Operation startPaymentAuthorisation
      *
      * Start the authorisation process for a payment initiation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -3253,9 +3444,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function startPaymentAuthorisation($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentAuthorisation($associative_array)
     {
-        list($response) = $this->startPaymentAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->startPaymentAuthorisationWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -3263,6 +3454,8 @@ class CommonServicesApi
      * Operation startPaymentAuthorisationWithHttpInfo
      *
      * Start the authorisation process for a payment initiation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -3297,14 +3490,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function startPaymentAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentAuthorisationWithHttpInfo($associative_array)
     {
-        $request = $this->startPaymentAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startPaymentAuthorisationRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -3499,6 +3692,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for a payment initiation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -3529,11 +3724,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startPaymentAuthorisationAsync($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentAuthorisationAsync($associative_array)
     {
-        return $this->startPaymentAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->startPaymentAuthorisationAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -3546,6 +3741,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for a payment initiation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -3576,15 +3773,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startPaymentAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentAuthorisationAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\StartScaprocessResponse';
-        $request = $this->startPaymentAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startPaymentAuthorisationRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -3620,6 +3818,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'startPaymentAuthorisation'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -3650,10 +3850,40 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function startPaymentAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function startPaymentAuthorisationRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $tpp_redirect_preferred = array_key_exists('tpp_redirect_preferred', $associative_array) ? $associative_array['tpp_redirect_preferred'] : null;
+        $tpp_redirect_uri = array_key_exists('tpp_redirect_uri', $associative_array) ? $associative_array['tpp_redirect_uri'] : null;
+        $tpp_nok_redirect_uri = array_key_exists('tpp_nok_redirect_uri', $associative_array) ? $associative_array['tpp_nok_redirect_uri'] : null;
+        $tpp_notification_uri = array_key_exists('tpp_notification_uri', $associative_array) ? $associative_array['tpp_notification_uri'] : null;
+        $tpp_notification_content_preferred = array_key_exists('tpp_notification_content_preferred', $associative_array) ? $associative_array['tpp_notification_content_preferred'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -3844,28 +4074,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -3885,8 +4115,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -3898,6 +4128,8 @@ class CommonServicesApi
      * Operation startPaymentInitiationCancellationAuthorisation
      *
      * Start the authorisation process for the cancellation of the addressed payment
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -3932,9 +4164,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function startPaymentInitiationCancellationAuthorisation($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentInitiationCancellationAuthorisation($associative_array)
     {
-        list($response) = $this->startPaymentInitiationCancellationAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->startPaymentInitiationCancellationAuthorisationWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -3942,6 +4174,8 @@ class CommonServicesApi
      * Operation startPaymentInitiationCancellationAuthorisationWithHttpInfo
      *
      * Start the authorisation process for the cancellation of the addressed payment
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -3976,14 +4210,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\StartScaprocessResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function startPaymentInitiationCancellationAuthorisationWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentInitiationCancellationAuthorisationWithHttpInfo($associative_array)
     {
-        $request = $this->startPaymentInitiationCancellationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startPaymentInitiationCancellationAuthorisationRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -4178,6 +4412,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for the cancellation of the addressed payment
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -4208,11 +4444,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startPaymentInitiationCancellationAuthorisationAsync($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentInitiationCancellationAuthorisationAsync($associative_array)
     {
-        return $this->startPaymentInitiationCancellationAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->startPaymentInitiationCancellationAuthorisationAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4225,6 +4461,8 @@ class CommonServicesApi
      *
      * Start the authorisation process for the cancellation of the addressed payment
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -4255,15 +4493,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function startPaymentInitiationCancellationAuthorisationAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function startPaymentInitiationCancellationAuthorisationAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\StartScaprocessResponse';
-        $request = $this->startPaymentInitiationCancellationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->startPaymentInitiationCancellationAuthorisationRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -4299,6 +4538,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'startPaymentInitiationCancellationAuthorisation'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -4329,10 +4570,40 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function startPaymentInitiationCancellationAuthorisationRequest($organisation, $payment_service, $payment_product, $payment_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $tpp_redirect_preferred = null, $tpp_redirect_uri = null, $tpp_nok_redirect_uri = null, $tpp_notification_uri = null, $tpp_notification_content_preferred = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function startPaymentInitiationCancellationAuthorisationRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $tpp_redirect_preferred = array_key_exists('tpp_redirect_preferred', $associative_array) ? $associative_array['tpp_redirect_preferred'] : null;
+        $tpp_redirect_uri = array_key_exists('tpp_redirect_uri', $associative_array) ? $associative_array['tpp_redirect_uri'] : null;
+        $tpp_nok_redirect_uri = array_key_exists('tpp_nok_redirect_uri', $associative_array) ? $associative_array['tpp_nok_redirect_uri'] : null;
+        $tpp_notification_uri = array_key_exists('tpp_notification_uri', $associative_array) ? $associative_array['tpp_notification_uri'] : null;
+        $tpp_notification_content_preferred = array_key_exists('tpp_notification_content_preferred', $associative_array) ? $associative_array['tpp_notification_content_preferred'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -4523,28 +4794,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -4564,8 +4835,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'POST',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -4577,6 +4848,8 @@ class CommonServicesApi
      * Operation updateConsentsPsuData
      *
      * Update PSU Data for consents
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
@@ -4605,9 +4878,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS
      */
-    public function updateConsentsPsuData($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updateConsentsPsuData($associative_array)
     {
-        list($response) = $this->updateConsentsPsuDataWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->updateConsentsPsuDataWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -4615,6 +4888,8 @@ class CommonServicesApi
      * Operation updateConsentsPsuDataWithHttpInfo
      *
      * Update PSU Data for consents
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
@@ -4643,14 +4918,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGAIS|\BankIO\Sdk\Model\Error401NGAIS|\BankIO\Sdk\Model\Error403NGAIS|\BankIO\Sdk\Model\Error404NGAIS|\BankIO\Sdk\Model\Error405NGAIS|\BankIO\Sdk\Model\Error406NGAIS|\BankIO\Sdk\Model\Error409NGAIS|\BankIO\Sdk\Model\Error429NGAIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateConsentsPsuDataWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updateConsentsPsuDataWithHttpInfo($associative_array)
     {
-        $request = $this->updateConsentsPsuDataRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updateConsentsPsuDataRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -4885,6 +5160,8 @@ class CommonServicesApi
      *
      * Update PSU Data for consents
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -4909,11 +5186,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updateConsentsPsuDataAsync($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updateConsentsPsuDataAsync($associative_array)
     {
-        return $this->updateConsentsPsuDataAsyncWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->updateConsentsPsuDataAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -4926,6 +5203,8 @@ class CommonServicesApi
      *
      * Update PSU Data for consents
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -4950,15 +5229,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updateConsentsPsuDataAsyncWithHttpInfo($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updateConsentsPsuDataAsyncWithHttpInfo($associative_array)
     {
         $returnType = 'OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse';
-        $request = $this->updateConsentsPsuDataRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updateConsentsPsuDataRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -4994,6 +5274,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'updateConsentsPsuData'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $consent_id ID of the corresponding consent object as returned by an account information consent request. (required)
      * @param  string $authorisation_id Resource identification of the related SCA. (required)
@@ -5018,10 +5300,34 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function updateConsentsPsuDataRequest($organisation, $consent_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function updateConsentsPsuDataRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $consent_id = array_key_exists('consent_id', $associative_array) ? $associative_array['consent_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -5178,28 +5484,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -5219,8 +5525,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -5232,6 +5538,8 @@ class CommonServicesApi
      * Operation updatePaymentCancellationPsuData
      *
      * Update PSU data for payment initiation cancellation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -5262,9 +5570,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function updatePaymentCancellationPsuData($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentCancellationPsuData($associative_array)
     {
-        list($response) = $this->updatePaymentCancellationPsuDataWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->updatePaymentCancellationPsuDataWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -5272,6 +5580,8 @@ class CommonServicesApi
      * Operation updatePaymentCancellationPsuDataWithHttpInfo
      *
      * Update PSU data for payment initiation cancellation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -5302,14 +5612,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updatePaymentCancellationPsuDataWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentCancellationPsuDataWithHttpInfo($associative_array)
     {
-        $request = $this->updatePaymentCancellationPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updatePaymentCancellationPsuDataRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -5504,6 +5814,8 @@ class CommonServicesApi
      *
      * Update PSU data for payment initiation cancellation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -5530,11 +5842,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updatePaymentCancellationPsuDataAsync($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentCancellationPsuDataAsync($associative_array)
     {
-        return $this->updatePaymentCancellationPsuDataAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->updatePaymentCancellationPsuDataAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -5547,6 +5859,8 @@ class CommonServicesApi
      *
      * Update PSU data for payment initiation cancellation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -5573,15 +5887,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updatePaymentCancellationPsuDataAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentCancellationPsuDataAsyncWithHttpInfo($associative_array)
     {
         $returnType = 'OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse';
-        $request = $this->updatePaymentCancellationPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updatePaymentCancellationPsuDataRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -5617,6 +5932,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'updatePaymentCancellationPsuData'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -5643,10 +5960,36 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function updatePaymentCancellationPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function updatePaymentCancellationPsuDataRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -5831,28 +6174,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -5872,8 +6215,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -5885,6 +6228,8 @@ class CommonServicesApi
      * Operation updatePaymentPsuData
      *
      * Update PSU data for payment initiation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -5915,9 +6260,9 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS
      */
-    public function updatePaymentPsuData($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentPsuData($associative_array)
     {
-        list($response) = $this->updatePaymentPsuDataWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        list($response) = $this->updatePaymentPsuDataWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -5925,6 +6270,8 @@ class CommonServicesApi
      * Operation updatePaymentPsuDataWithHttpInfo
      *
      * Update PSU data for payment initiation
+     *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
      *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
@@ -5955,14 +6302,14 @@ class CommonServicesApi
      * @throws \InvalidArgumentException
      * @return array of OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse|\BankIO\Sdk\Model\Error400NGPIS|\BankIO\Sdk\Model\Error401NGPIS|\BankIO\Sdk\Model\Error403NGPIS|\BankIO\Sdk\Model\Error404NGPIS|\BankIO\Sdk\Model\Error405NGPIS|\BankIO\Sdk\Model\Error409NGPIS, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updatePaymentPsuDataWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentPsuDataWithHttpInfo($associative_array)
     {
-        $request = $this->updatePaymentPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updatePaymentPsuDataRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -6157,6 +6504,8 @@ class CommonServicesApi
      *
      * Update PSU data for payment initiation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -6183,11 +6532,11 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updatePaymentPsuDataAsync($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentPsuDataAsync($associative_array)
     {
-        return $this->updatePaymentPsuDataAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type)
+        return $this->updatePaymentPsuDataAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -6200,6 +6549,8 @@ class CommonServicesApi
      *
      * Update PSU data for payment initiation
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -6226,15 +6577,16 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updatePaymentPsuDataAsyncWithHttpInfo($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    public function updatePaymentPsuDataAsyncWithHttpInfo($associative_array)
     {
         $returnType = 'OneOfUpdatePsuIdenticationResponseUpdatePsuAuthenticationResponseSelectPsuAuthenticationMethodResponseScaStatusResponseAuthorisationConfirmationResponse';
-        $request = $this->updatePaymentPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+        $request = $this->updatePaymentPsuDataRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -6270,6 +6622,8 @@ class CommonServicesApi
     /**
      * Create request for operation 'updatePaymentPsuData'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $organisation This identification is denoting the addressed bankIO organisation. The organisation is the \&quot;name\&quot; attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent. (required)
      * @param  string $payment_service Payment service:  Possible values are: * payments * bulk-payments * periodic-payments (required)
      * @param  string $payment_product The addressed payment product endpoint, e.g. for SEPA Credit Transfers (SCT). The ASPSP will publish which of the payment products/endpoints will be supported.  The following payment products are supported:   - sepa-credit-transfers   - instant-sepa-credit-transfers   - target-2-payments   - cross-border-credit-transfers   - pain.001-sepa-credit-transfers   - pain.001-instant-sepa-credit-transfers   - pain.001-target-2-payments   - pain.001-cross-border-credit-transfers  **Remark:** For all SEPA Credit Transfer based endpoints which accept XML encoding,  the XML pain.001 schemes provided by EPC are supported by the ASPSP as a minimum for the body content.  Further XML schemes might be supported by some communities.  **Remark:** For cross-border and TARGET-2 payments only community wide pain.001 schemes do exist.  There are plenty of country specificic scheme variants. (required)
@@ -6296,10 +6650,36 @@ class CommonServicesApi
      * @param  \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE $unknown_base_type (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function updatePaymentPsuDataRequest($organisation, $payment_service, $payment_product, $payment_id, $authorisation_id, $x_request_id, $digest = null, $signature = null, $tpp_signature_certificate = null, $psu_id = null, $psu_id_type = null, $psu_corporate_id = null, $psu_corporate_id_type = null, $psu_ip_address = null, $psu_ip_port = null, $psu_accept = null, $psu_accept_charset = null, $psu_accept_encoding = null, $psu_accept_language = null, $psu_user_agent = null, $psu_http_method = null, $psu_device_id = null, $psu_geo_location = null, $unknown_base_type = null)
+    protected function updatePaymentPsuDataRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $organisation = array_key_exists('organisation', $associative_array) ? $associative_array['organisation'] : null;
+        $payment_service = array_key_exists('payment_service', $associative_array) ? $associative_array['payment_service'] : null;
+        $payment_product = array_key_exists('payment_product', $associative_array) ? $associative_array['payment_product'] : null;
+        $payment_id = array_key_exists('payment_id', $associative_array) ? $associative_array['payment_id'] : null;
+        $authorisation_id = array_key_exists('authorisation_id', $associative_array) ? $associative_array['authorisation_id'] : null;
+        $x_request_id = array_key_exists('x_request_id', $associative_array) ? $associative_array['x_request_id'] : null;
+        $digest = array_key_exists('digest', $associative_array) ? $associative_array['digest'] : null;
+        $signature = array_key_exists('signature', $associative_array) ? $associative_array['signature'] : null;
+        $tpp_signature_certificate = array_key_exists('tpp_signature_certificate', $associative_array) ? $associative_array['tpp_signature_certificate'] : null;
+        $psu_id = array_key_exists('psu_id', $associative_array) ? $associative_array['psu_id'] : null;
+        $psu_id_type = array_key_exists('psu_id_type', $associative_array) ? $associative_array['psu_id_type'] : null;
+        $psu_corporate_id = array_key_exists('psu_corporate_id', $associative_array) ? $associative_array['psu_corporate_id'] : null;
+        $psu_corporate_id_type = array_key_exists('psu_corporate_id_type', $associative_array) ? $associative_array['psu_corporate_id_type'] : null;
+        $psu_ip_address = array_key_exists('psu_ip_address', $associative_array) ? $associative_array['psu_ip_address'] : null;
+        $psu_ip_port = array_key_exists('psu_ip_port', $associative_array) ? $associative_array['psu_ip_port'] : null;
+        $psu_accept = array_key_exists('psu_accept', $associative_array) ? $associative_array['psu_accept'] : null;
+        $psu_accept_charset = array_key_exists('psu_accept_charset', $associative_array) ? $associative_array['psu_accept_charset'] : null;
+        $psu_accept_encoding = array_key_exists('psu_accept_encoding', $associative_array) ? $associative_array['psu_accept_encoding'] : null;
+        $psu_accept_language = array_key_exists('psu_accept_language', $associative_array) ? $associative_array['psu_accept_language'] : null;
+        $psu_user_agent = array_key_exists('psu_user_agent', $associative_array) ? $associative_array['psu_user_agent'] : null;
+        $psu_http_method = array_key_exists('psu_http_method', $associative_array) ? $associative_array['psu_http_method'] : null;
+        $psu_device_id = array_key_exists('psu_device_id', $associative_array) ? $associative_array['psu_device_id'] : null;
+        $psu_geo_location = array_key_exists('psu_geo_location', $associative_array) ? $associative_array['psu_geo_location'] : null;
+        $unknown_base_type = array_key_exists('unknown_base_type', $associative_array) ? $associative_array['unknown_base_type'] : null;
+
         // verify the required parameter 'organisation' is set
         if ($organisation === null || (is_array($organisation) && count($organisation) === 0)) {
             throw new \InvalidArgumentException(
@@ -6484,28 +6864,28 @@ class CommonServicesApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -6525,8 +6905,8 @@ class CommonServicesApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -6544,12 +6924,45 @@ class CommonServicesApi
     {
         $options = [];
         if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
         }
 
         return $options;
+    }
+
+    /**
+    * Safely opens a PHP stream resource using a filename.
+    *
+    * When fopen fails, PHP normally raises a warning. This function adds an
+    * error handler that checks for errors and throws an exception instead.
+    *
+    * @param string $filename File to open
+    * @param string $mode     Mode used to open the file
+    *
+    * @return resource
+    *
+    * @throws \RuntimeException if the file cannot be opened
+    */
+    protected function try_fopen(string $filename, string $mode)
+    {
+        $ex = null;
+        set_error_handler(function (int $errno, string $errstr) use ($filename, $mode, &$ex) {
+            $ex = new \RuntimeException(sprintf(
+                'Unable to open %s using mode %s: %s',
+                $filename,
+                $mode,
+                $errstr
+            ));
+        });
+
+        /** @var resource $handle */
+        $handle = fopen($filename, $mode);
+        restore_error_handler();
+
+        if ($ex) {
+            /** @var $ex \RuntimeException */
+            throw $ex;
+        }
+
+        return $handle;
     }
 }

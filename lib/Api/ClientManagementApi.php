@@ -5,8 +5,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -28,12 +28,17 @@
 
 namespace BankIO\Sdk\Api;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Psr7\MultipartStream;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
+use Http\Client\HttpClient;
+use Http\Client\HttpAsyncClient;
+use Http\Message\MessageFactory;
+use Http\Discovery\HttpClientDiscovery;
+use Http\Discovery\HttpAsyncClientDiscovery;
+use Http\Discovery\MessageFactoryDiscovery;
+use Http\Discovery\StreamFactoryDiscovery;
+use Http\Client\Exception\RequestException;
+use Http\Message\StreamFactory;
+use Http\Message\MultipartStream\MultipartStreamBuilder;
+use Psr\Http\Message\RequestInterface;
 use BankIO\Sdk\ApiException;
 use BankIO\Sdk\Configuration;
 use BankIO\Sdk\HeaderSelector;
@@ -44,15 +49,30 @@ use BankIO\Sdk\ObjectSerializer;
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ClientManagementApi
 {
     /**
-     * @var ClientInterface
+     * @var HttpClient
      */
     protected $client;
+
+    /**
+     * @var HttpAsyncClient
+     */
+    protected $asyncClient;
+
+    /**
+     * @var MessageFactory
+     */
+    protected $messageFactory;
+
+    /**
+     * @var StreamFactory
+     */
+    protected $streamFactory;
 
     /**
      * @var Configuration
@@ -70,18 +90,23 @@ class ClientManagementApi
     protected $hostIndex;
 
     /**
-     * @param ClientInterface $client
+     * @param HttpClient $client
      * @param Configuration   $config
      * @param HeaderSelector  $selector
      * @param int             $host_index (Optional) host index to select the list of hosts if defined in the OpenAPI spec
      */
     public function __construct(
-        ClientInterface $client = null,
+        HttpClient $client = null,
         Configuration $config = null,
         HeaderSelector $selector = null,
+        MessageFactory $messageFactory = null,
+        StreamFactory $streamFactory = null,
         $host_index = 0
     ) {
-        $this->client = $client ?: new Client();
+        $this->client = $client ?: HttpClientDiscovery::find();
+        // $this->asyncClient = $asyncClient ?: HttpAsyncClientDiscovery::find();
+        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
+        $this->streamFactory = $streamFactory ?: StreamFactoryDiscovery::find();
         $this->config = $config ?: new Configuration();
         $this->headerSelector = $selector ?: new HeaderSelector();
         $this->hostIndex = $host_index;
@@ -120,15 +145,17 @@ class ClientManagementApi
      *
      * Delete a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return void
      */
-    public function clientClientId($client_id)
+    public function clientClientId($associative_array)
     {
-        $this->clientClientIdWithHttpInfo($client_id);
+        $this->clientClientIdWithHttpInfo($associative_array);
     }
 
     /**
@@ -136,20 +163,22 @@ class ClientManagementApi
      *
      * Delete a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of null, HTTP status code, HTTP response headers (array of strings)
      */
-    public function clientClientIdWithHttpInfo($client_id)
+    public function clientClientIdWithHttpInfo($associative_array)
     {
-        $request = $this->clientClientIdRequest($client_id);
+        $request = $this->clientClientIdRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -196,14 +225,16 @@ class ClientManagementApi
      *
      * Delete a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function clientClientIdAsync($client_id)
+    public function clientClientIdAsync($associative_array)
     {
-        return $this->clientClientIdAsyncWithHttpInfo($client_id)
+        return $this->clientClientIdAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -216,18 +247,21 @@ class ClientManagementApi
      *
      * Delete a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function clientClientIdAsyncWithHttpInfo($client_id)
+    public function clientClientIdAsyncWithHttpInfo($associative_array)
     {
         $returnType = '';
-        $request = $this->clientClientIdRequest($client_id);
+        $request = $this->clientClientIdRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     return [null, $response->getStatusCode(), $response->getHeaders()];
@@ -252,13 +286,18 @@ class ClientManagementApi
     /**
      * Create request for operation 'clientClientId'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function clientClientIdRequest($client_id)
+    protected function clientClientIdRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $client_id = array_key_exists('client_id', $associative_array) ? $associative_array['client_id'] : null;
+
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
             throw new \InvalidArgumentException(
@@ -302,28 +341,28 @@ class ClientManagementApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -344,8 +383,8 @@ class ClientManagementApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'DELETE',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -358,15 +397,17 @@ class ClientManagementApi
      *
      * View a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\Client|\BankIO\Sdk\Model\OAuth2Error
      */
-    public function getClient($client_id)
+    public function getClient($associative_array)
     {
-        list($response) = $this->getClientWithHttpInfo($client_id);
+        list($response) = $this->getClientWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -375,20 +416,22 @@ class ClientManagementApi
      *
      * View a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \BankIO\Sdk\ApiException on non-2xx response
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\Client|\BankIO\Sdk\Model\OAuth2Error, HTTP status code, HTTP response headers (array of strings)
      */
-    public function getClientWithHttpInfo($client_id)
+    public function getClientWithHttpInfo($associative_array)
     {
-        $request = $this->getClientRequest($client_id);
+        $request = $this->getClientRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -483,14 +526,16 @@ class ClientManagementApi
      *
      * View a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getClientAsync($client_id)
+    public function getClientAsync($associative_array)
     {
-        return $this->getClientAsyncWithHttpInfo($client_id)
+        return $this->getClientAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -503,18 +548,21 @@ class ClientManagementApi
      *
      * View a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function getClientAsyncWithHttpInfo($client_id)
+    public function getClientAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\Client';
-        $request = $this->getClientRequest($client_id);
+        $request = $this->getClientRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -550,13 +598,18 @@ class ClientManagementApi
     /**
      * Create request for operation 'getClient'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function getClientRequest($client_id)
+    protected function getClientRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $client_id = array_key_exists('client_id', $associative_array) ? $associative_array['client_id'] : null;
+
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
             throw new \InvalidArgumentException(
@@ -600,28 +653,28 @@ class ClientManagementApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -642,8 +695,8 @@ class ClientManagementApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'GET',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -656,6 +709,8 @@ class ClientManagementApi
      *
      * Update a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      * @param  \BankIO\Sdk\Model\Client $client Client Object (optional)
      *
@@ -663,9 +718,9 @@ class ClientManagementApi
      * @throws \InvalidArgumentException
      * @return \BankIO\Sdk\Model\Client|\BankIO\Sdk\Model\ProblemDetail
      */
-    public function updateClient($client_id, $client = null)
+    public function updateClient($associative_array)
     {
-        list($response) = $this->updateClientWithHttpInfo($client_id, $client);
+        list($response) = $this->updateClientWithHttpInfo($associative_array);
         return $response;
     }
 
@@ -674,6 +729,8 @@ class ClientManagementApi
      *
      * Update a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      * @param  \BankIO\Sdk\Model\Client $client Client Object (optional)
      *
@@ -681,14 +738,14 @@ class ClientManagementApi
      * @throws \InvalidArgumentException
      * @return array of \BankIO\Sdk\Model\Client|\BankIO\Sdk\Model\ProblemDetail, HTTP status code, HTTP response headers (array of strings)
      */
-    public function updateClientWithHttpInfo($client_id, $client = null)
+    public function updateClientWithHttpInfo($associative_array)
     {
-        $request = $this->updateClientRequest($client_id, $client);
+        $request = $this->updateClientRequest($associative_array);
 
         try {
-            $options = $this->createHttpClientOption();
+            // $options = $this->createHttpClientOption();
             try {
-                $response = $this->client->send($request, $options);
+                $response = $this->client->sendRequest($request);
             } catch (RequestException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
@@ -783,15 +840,17 @@ class ClientManagementApi
      *
      * Update a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      * @param  \BankIO\Sdk\Model\Client $client Client Object (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updateClientAsync($client_id, $client = null)
+    public function updateClientAsync($associative_array)
     {
-        return $this->updateClientAsyncWithHttpInfo($client_id, $client)
+        return $this->updateClientAsyncWithHttpInfo($associative_array)
             ->then(
                 function ($response) {
                     return $response[0];
@@ -804,19 +863,22 @@ class ClientManagementApi
      *
      * Update a client
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      * @param  \BankIO\Sdk\Model\Client $client Client Object (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @return \Http\Promise\Promise
      */
-    public function updateClientAsyncWithHttpInfo($client_id, $client = null)
+    public function updateClientAsyncWithHttpInfo($associative_array)
     {
         $returnType = '\BankIO\Sdk\Model\Client';
-        $request = $this->updateClientRequest($client_id, $client);
+        $request = $this->updateClientRequest($associative_array);
 
+        // $this->createHttpClientOption()
         return $this->client
-            ->sendAsync($request, $this->createHttpClientOption())
+            ->sendAsyncRequest($request)
             ->then(
                 function ($response) use ($returnType) {
                     $responseBody = $response->getBody();
@@ -852,14 +914,20 @@ class ClientManagementApi
     /**
      * Create request for operation 'updateClient'
      *
+     * Note: the input parameter is an associative array with the keys listed as the parameter name below
+     *
      * @param  string $client_id Client identifier (required)
      * @param  \BankIO\Sdk\Model\Client $client Client Object (optional)
      *
      * @throws \InvalidArgumentException
-     * @return \GuzzleHttp\Psr7\Request
+     * @return \Psr\Http\Message\RequestInterface
      */
-    protected function updateClientRequest($client_id, $client = null)
+    protected function updateClientRequest($associative_array)
     {
+        // unbox the parameters from the associative array
+        $client_id = array_key_exists('client_id', $associative_array) ? $associative_array['client_id'] : null;
+        $client = array_key_exists('client', $associative_array) ? $associative_array['client'] : null;
+
         // verify the required parameter 'client_id' is set
         if ($client_id === null || (is_array($client_id) && count($client_id) === 0)) {
             throw new \InvalidArgumentException(
@@ -906,28 +974,28 @@ class ClientManagementApi
         if (isset($_tempBody)) {
             // $_tempBody is the method argument, if present
             if ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
+                $httpBody = json_encode(ObjectSerializer::sanitizeForSerialization($_tempBody));
             } else {
                 $httpBody = $_tempBody;
             }
         } elseif (count($formParams) > 0) {
             if ($multipart) {
-                $multipartContents = [];
+                $builder = new MultipartStreamBuilder($streamFactory);
                 foreach ($formParams as $formParamName => $formParamValue) {
-                    $multipartContents[] = [
-                        'name' => $formParamName,
-                        'contents' => $formParamValue
-                    ];
+                    $formParamValueItems = is_array($formParamValue) ? $formParamValue : [$formParamValue];
+                    foreach ($formParamValueItems as $formParamValueItem) {
+                        $builder->addResource($formParamName, $formParamValueItem);
+                    }
                 }
                 // for HTTP post (form)
-                $httpBody = new MultipartStream($multipartContents);
+                $httpBody = $builder->build();
 
             } elseif ($headers['Content-Type'] === 'application/json') {
-                $httpBody = \GuzzleHttp\json_encode($formParams);
+                $httpBody = json_encode($formParams);
 
             } else {
                 // for HTTP post (form)
-                $httpBody = \GuzzleHttp\Psr7\build_query($formParams);
+                $httpBody = http_build_query($formParams);
             }
         }
 
@@ -948,8 +1016,8 @@ class ClientManagementApi
             $headers
         );
 
-        $query = \GuzzleHttp\Psr7\build_query($queryParams);
-        return new Request(
+        $query = http_build_query($queryParams);
+        return $this->messageFactory->createRequest(
             'PUT',
             $this->config->getHost() . $resourcePath . ($query ? "?{$query}" : ''),
             $headers,
@@ -967,12 +1035,45 @@ class ClientManagementApi
     {
         $options = [];
         if ($this->config->getDebug()) {
-            $options[RequestOptions::DEBUG] = fopen($this->config->getDebugFile(), 'a');
-            if (!$options[RequestOptions::DEBUG]) {
-                throw new \RuntimeException('Failed to open the debug file: ' . $this->config->getDebugFile());
-            }
         }
 
         return $options;
+    }
+
+    /**
+    * Safely opens a PHP stream resource using a filename.
+    *
+    * When fopen fails, PHP normally raises a warning. This function adds an
+    * error handler that checks for errors and throws an exception instead.
+    *
+    * @param string $filename File to open
+    * @param string $mode     Mode used to open the file
+    *
+    * @return resource
+    *
+    * @throws \RuntimeException if the file cannot be opened
+    */
+    protected function try_fopen(string $filename, string $mode)
+    {
+        $ex = null;
+        set_error_handler(function (int $errno, string $errstr) use ($filename, $mode, &$ex) {
+            $ex = new \RuntimeException(sprintf(
+                'Unable to open %s using mode %s: %s',
+                $filename,
+                $mode,
+                $errstr
+            ));
+        });
+
+        /** @var resource $handle */
+        $handle = fopen($filename, $mode);
+        restore_error_handler();
+
+        if ($ex) {
+            /** @var $ex \RuntimeException */
+            throw $ex;
+        }
+
+        return $handle;
     }
 }

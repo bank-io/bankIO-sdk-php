@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description ExternalPurpose1Code from ISO 20022.  Values from ISO 20022 External Code List ExternalCodeSets_1Q2018 June 2018.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class PurposeCode
 {

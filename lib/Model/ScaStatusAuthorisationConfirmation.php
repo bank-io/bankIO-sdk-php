@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description This data element is containing information about the status of the SCA method in an authorisation confirmation response.   The following codes are defined for this data type.    * &#39;finalised&#39;: if the transaction authorisation and confirmation was successfule.   * &#39;failed&#39;: if the transaction authorisation or confirmation was not successful.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ScaStatusAuthorisationConfirmation
 {

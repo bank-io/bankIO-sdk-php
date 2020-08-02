@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description Day of execution as string.  This string consists of up two characters. Leading zeroes are not allowed.  31 is ultimo of the month.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class DayOfExecution
 {

@@ -127,10 +127,11 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
 $organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.

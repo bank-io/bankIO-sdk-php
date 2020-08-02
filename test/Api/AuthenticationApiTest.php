@@ -103,7 +103,7 @@ class AuthenticationApiTest extends TestCase
 
 
         $authApiInstance = new BankIO\Sdk\Api\AuthenticationApi(
-        // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+        // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
         // This is optional, `GuzzleHttp\Client` will be used as default.
         new GuzzleHttp\Client(),
         $config

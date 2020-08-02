@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description \&quot;following\&quot; or \&quot;preceding\&quot; supported as values.  This data attribute defines the behaviour when recurring payment dates falls on a weekend or bank holiday.  The payment is then executed either the \&quot;preceding\&quot; or \&quot;following\&quot; working day. ASPSP might reject the request due to the communicated value, if rules in Online-Banking are not supporting  this execution rule.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ExecutionRule
 {

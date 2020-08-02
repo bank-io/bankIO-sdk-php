@@ -31,16 +31,17 @@ $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKey('Author
 // $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKeyPrefix('Authorization', 'Bearer');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\ClientManagementApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$client_id = 'client_id_example'; // string | Client identifier
+$associate_array['client_id'] = 'client_id_example'; // string | Client identifier
 
 try {
-    $apiInstance->clientClientId($client_id);
+    $apiInstance->clientClientId($associate_array);
 } catch (Exception $e) {
     echo 'Exception when calling ClientManagementApi->clientClientId: ', $e->getMessage(), PHP_EOL;
 }
@@ -48,6 +49,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -93,16 +96,17 @@ $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKey('Author
 // $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKeyPrefix('Authorization', 'Bearer');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\ClientManagementApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$client_id = 'client_id_example'; // string | Client identifier
+$associate_array['client_id'] = 'client_id_example'; // string | Client identifier
 
 try {
-    $result = $apiInstance->getClient($client_id);
+    $result = $apiInstance->getClient($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ClientManagementApi->getClient: ', $e->getMessage(), PHP_EOL;
@@ -111,6 +115,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -156,17 +162,18 @@ $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKey('Author
 // $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setApiKeyPrefix('Authorization', 'Bearer');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\ClientManagementApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$client_id = 'client_id_example'; // string | Client identifier
-$client = new \BankIO\Sdk\Model\Client(); // \BankIO\Sdk\Model\Client | Client Object
+$associate_array['client_id'] = 'client_id_example'; // string | Client identifier
+$associate_array['client'] = new \BankIO\Sdk\Model\Client(); // \BankIO\Sdk\Model\Client | Client Object
 
 try {
-    $result = $apiInstance->updateClient($client_id, $client);
+    $result = $apiInstance->updateClient($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling ClientManagementApi->updateClient: ', $e->getMessage(), PHP_EOL;
@@ -175,6 +182,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes

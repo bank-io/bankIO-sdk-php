@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description This data element is containing information about the status of the SCA method applied.   The following codes are defined for this data type.    * &#39;received&#39;:     An authorisation or cancellation-authorisation resource has been created successfully.   * &#39;psuIdentified&#39;:     The PSU related to the authorisation or cancellation-authorisation resource has been identified.   * &#39;psuAuthenticated&#39;:     The PSU related to the authorisation or cancellation-authorisation resource has been identified and authenticated e.g. by a password or by an access token.   * &#39;scaMethodSelected&#39;:     The PSU/TPP has selected the related SCA routine.      If the SCA method is chosen implicitly since only one SCA method is available,      then this is the first status to be reported instead of &#39;received&#39;.   * &#39;unconfirmed&#39;:     SCA is technically successfully finalised by the PSU, but the authorisation resource needs a confirmation command by the TPP yet.    * &#39;started&#39;:     The addressed SCA routine has been started.   * &#39;finalised&#39;:     The SCA routine has been finalised successfully (including a potential confirmation command).      This is a final status of the authorisation resource.   * &#39;failed&#39;:     The SCA routine failed.     This is a final status of the authorisation resource.   * &#39;exempted&#39;:     SCA was exempted for the related transaction, the related authorisation is successful.     This is a final status of the authorisation resource.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ScaStatus
 {

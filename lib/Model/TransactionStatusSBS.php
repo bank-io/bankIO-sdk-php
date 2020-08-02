@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description The transaction status is filled with codes of the ISO 20022 data table. Only the codes RCVD, PATC, ACTC, ACWC and RJCT are used: - &#39;ACSP&#39;: &#39;AcceptedSettlementInProcess&#39; -    All preceding checks such as technical validation and customer profile were successful and therefore the payment initiation has been accepted for execution. - &#39;ACTC&#39;: &#39;AcceptedTechnicalValidation&#39; -    Authentication and syntactical and semantical validation are successful. - &#39;ACWC&#39;: &#39;AcceptedWithChange&#39; -    Instruction is accepted but a change will be made, such as date or remittance not sent. - &#39;RCVD&#39;: &#39;Received&#39; -    Payment initiation has been received by the receiving agent. - &#39;RJCT&#39;: &#39;Rejected&#39; -    Payment initiation or individual transaction included in the payment initiation has been rejected.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class TransactionStatusSBS
 {

@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description Account status. The value is one of the following:   - \&quot;enabled\&quot;: account is available   - \&quot;deleted\&quot;: account is terminated   - \&quot;blocked\&quot;: account is blocked e.g. for legal reasons If this field is not used, than the account is available in the sense of this specification.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class AccountStatus
 {

@@ -25,25 +25,26 @@ Start a session with bankIO Connect and authenticate a user.  Example:  ``` GET 
 require_once(__DIR__ . '/vendor/autoload.php');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AuthenticationApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client()
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client
 );
-$client_id = 'client_id_example'; // string | A client ID obtained from the [Dashboard](https://dashboard.bankio.com/).
-$response_type = 'response_type_example'; // string | The OIDC response type to use for this authentication flow. Valid choices are `code`, `id_token`, `token`, `token id_token`, `code id_token` `code token` and `code token id_token`, but a client can be configured with a more restricted set.
-$scope = 'scope_example'; // string | The space-separated identity claims to request from the end-user. Always include `openid` as a scope for compatibility with OIDC.
-$redirect_uri = 'redirect_uri_example'; // string | The location to redirect to after (un)successful authentication. See OIDC for the parameters passed in the query string (`response_mode=query`) or as fragments (`response_mode=fragment`). Unless the client is in test-mode this must be one of the registered redirect URLs.
-$state = 'state_example'; // string | An opaque string that will be passed back to the redirect URL and therefore can be used to communicate client side state and prevent CSRF attacks.
-$response_mode = 'response_mode_example'; // string | Whether to append parameters to the redirect URL in the query string (`query`) or as fragments (`fragment`). This option usually has a sensible default for each of the response types.
-$nonce = 'nonce_example'; // string | An nonce provided by the client (and opaque to bankIO Connect) that will be included in any ID Token generated for this session. Clients should use the nonce to mitigate replay attacks.
-$display = 'page'; // string | The authentication display mode, which can be one of `page`, `popup` or `modal`. Defaults to `page`.
-$prompt = 'login'; // string | Space-delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The supported values are: `none`, `login`, `consent`. If `consent` the end-user is asked to (re)confirm what claims they share. Use `none` to check for an active session.
-$max_age = 0; // int | Specifies the allowable elapsed time in seconds since the last time the end-user was actively authenticated.
-$ui_locales = 'ui_locales_example'; // string | Specifies the preferred language to use on the authorization page, as a space-separated list of BCP47 language tags. Ignored at the moment.
+$associate_array['client_id'] = 'client_id_example'; // string | A client ID obtained from the [Dashboard](https://dashboard.bankio.com/).
+$associate_array['response_type'] = 'response_type_example'; // string | The OIDC response type to use for this authentication flow. Valid choices are `code`, `id_token`, `token`, `token id_token`, `code id_token` `code token` and `code token id_token`, but a client can be configured with a more restricted set.
+$associate_array['scope'] = 'scope_example'; // string | The space-separated identity claims to request from the end-user. Always include `openid` as a scope for compatibility with OIDC.
+$associate_array['redirect_uri'] = 'redirect_uri_example'; // string | The location to redirect to after (un)successful authentication. See OIDC for the parameters passed in the query string (`response_mode=query`) or as fragments (`response_mode=fragment`). Unless the client is in test-mode this must be one of the registered redirect URLs.
+$associate_array['state'] = 'state_example'; // string | An opaque string that will be passed back to the redirect URL and therefore can be used to communicate client side state and prevent CSRF attacks.
+$associate_array['response_mode'] = 'response_mode_example'; // string | Whether to append parameters to the redirect URL in the query string (`query`) or as fragments (`fragment`). This option usually has a sensible default for each of the response types.
+$associate_array['nonce'] = 'nonce_example'; // string | An nonce provided by the client (and opaque to bankIO Connect) that will be included in any ID Token generated for this session. Clients should use the nonce to mitigate replay attacks.
+$associate_array['display'] = 'page'; // string | The authentication display mode, which can be one of `page`, `popup` or `modal`. Defaults to `page`.
+$associate_array['prompt'] = 'login'; // string | Space-delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The supported values are: `none`, `login`, `consent`. If `consent` the end-user is asked to (re)confirm what claims they share. Use `none` to check for an active session.
+$associate_array['max_age'] = 0; // int | Specifies the allowable elapsed time in seconds since the last time the end-user was actively authenticated.
+$associate_array['ui_locales'] = 'ui_locales_example'; // string | Specifies the preferred language to use on the authorization page, as a space-separated list of BCP47 language tags. Ignored at the moment.
 
 try {
-    $apiInstance->authorize($client_id, $response_type, $scope, $redirect_uri, $state, $response_mode, $nonce, $display, $prompt, $max_age, $ui_locales);
+    $apiInstance->authorize($associate_array);
 } catch (Exception $e) {
     echo 'Exception when calling AuthenticationApi->authorize: ', $e->getMessage(), PHP_EOL;
 }
@@ -51,6 +52,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -106,22 +109,23 @@ $config = BankIO\Sdk\Configuration::getDefaultConfiguration()
               ->setPassword('YOUR_PASSWORD');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AuthenticationApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$grant_type = 'grant_type_example'; // string | Type of grant.
-$client_id = 'client_id_example'; // string | Application client ID, may be provided either within formData or using HTTP Basic Authentication.
-$client_secret = 'client_secret_example'; // string | Application secret, may be provided either within formData or using HTTP Basic Authentication.
-$code = 'code_example'; // string | Authorization code provided by the /oauth2/authorize endpoint.
-$redirect_uri = 'redirect_uri_example'; // string | Required only if the redirect_uri parameter was included in the authorization request /oauth2/authorize. Their values MUST be identical.
-$scope = 'scope_example'; // string | Scope being requested.
-$refresh_token = 'refresh_token_example'; // string | The refresh token that the client wants to exchange for a new access token (refresh_token grant_type).
+$associate_array['grant_type'] = 'grant_type_example'; // string | Type of grant.
+$associate_array['client_id'] = 'client_id_example'; // string | Application client ID, may be provided either within formData or using HTTP Basic Authentication.
+$associate_array['client_secret'] = 'client_secret_example'; // string | Application secret, may be provided either within formData or using HTTP Basic Authentication.
+$associate_array['code'] = 'code_example'; // string | Authorization code provided by the /oauth2/authorize endpoint.
+$associate_array['redirect_uri'] = 'redirect_uri_example'; // string | Required only if the redirect_uri parameter was included in the authorization request /oauth2/authorize. Their values MUST be identical.
+$associate_array['scope'] = 'scope_example'; // string | Scope being requested.
+$associate_array['refresh_token'] = 'refresh_token_example'; // string | The refresh token that the client wants to exchange for a new access token (refresh_token grant_type).
 
 try {
-    $result = $apiInstance->token($grant_type, $client_id, $client_secret, $code, $redirect_uri, $scope, $refresh_token);
+    $result = $apiInstance->token($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AuthenticationApi->token: ', $e->getMessage(), PHP_EOL;
@@ -130,6 +134,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -179,15 +185,16 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AuthenticationApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
 
 try {
-    $result = $apiInstance->userInfo();
+    $result = $apiInstance->userInfo($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AuthenticationApi->userInfo: ', $e->getMessage(), PHP_EOL;
@@ -196,6 +203,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 This endpoint does not need any parameter.
 

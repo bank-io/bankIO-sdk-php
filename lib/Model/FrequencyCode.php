@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description The following codes from the \&quot;EventFrequency7Code\&quot; of ISO 20022 are supported: - \&quot;Daily\&quot; - \&quot;Weekly\&quot; - \&quot;EveryTwoWeeks\&quot; - \&quot;Monthly\&quot; - \&quot;EveryTwoMonths\&quot; - \&quot;Quarterly\&quot; - \&quot;SemiAnnual\&quot; - \&quot;Annual\&quot; - \&quot;MonthlyVariable\&quot;
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class FrequencyCode
 {

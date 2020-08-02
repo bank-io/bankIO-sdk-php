@@ -43,44 +43,45 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$tpp_psu_id = 'PSU-1234'; // string | Client ID of the PSU in the TPP client interface.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding http request IP Address field between PSU and TPP. If not available, the TPP shall use the IP Address used by the TPP when submitting this request.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['tpp_psu_id'] = 'PSU-1234'; // string | Client ID of the PSU in the TPP client interface.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding http request IP Address field between PSU and TPP. If not available, the TPP shall use the IP Address used by the TPP when submitting this request.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_id = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
-$psu_id_type = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
-$psu_corporate_id = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$psu_corporate_id_type = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$tpp_redirect_preferred = True; // bool | If it equals \"true\", the TPP prefers a redirect over an embedded SCA approach. If it equals \"false\", the TPP prefers not to be redirected for SCA. The ASPSP will then choose between the Embedded or the Decoupled SCA approach, depending on the choice of the SCA procedure by the TPP/PSU. If the parameter is not used, the ASPSP will choose the SCA approach to be applied depending on the SCA method chosen by the TPP/PSU.
-$tpp_redirect_uri = 'tpp_redirect_uri_example'; // string | URI of the TPP, where the transaction flow shall be redirected to after a Redirect.  Mandated for the Redirect SCA Approach, specifically  when TPP-Redirect-Preferred equals \"true\". It is recommended to always use this header field.  **Remark for Future:**  This field might be changed to mandatory in the next version of the specification.
-$tpp_nok_redirect_uri = 'tpp_nok_redirect_uri_example'; // string | If this URI is contained, the TPP is asking to redirect the transaction flow to this address instead of the TPP-Redirect-URI in case of a negative result of the redirect SCA method. This might be ignored by the ASPSP.
-$tpp_explicit_authorisation_preferred = True; // bool | If it equals \"true\", the TPP prefers to start the authorisation process separately,  e.g. because of the usage of a signing basket.  This preference might be ignored by the ASPSP, if a signing basket is not supported as functionality.  If it equals \"false\" or if the parameter is not used, there is no preference of the TPP.  This especially indicates that the TPP assumes a direct authorisation of the transaction in the next step,  without using a signing basket.
-$tpp_brand_logging_information = 'tpp_brand_logging_information_example'; // string | This header might be used by TPPs to inform the ASPSP about the brand used by the TPP towards the PSU.  This information is meant for logging entries to enhance communication between ASPSP and PSU or ASPSP and TPP.  This header might be ignored by the ASPSP.
-$tpp_notification_uri = 'tpp_notification_uri_example'; // string | URI for the Endpoint of the TPP-API to which the status of the payment initiation should be sent. This header field may by ignored by the ASPSP.  For security reasons, it shall be ensured that the TPP-Notification-URI as introduced above is secured by the TPP eIDAS QWAC used for identification of the TPP. The following applies:  URIs which are provided by TPPs in TPP-Notification-URI shall comply with the domain secured by the eIDAS QWAC certificate of the TPP in the field CN or SubjectAltName of the certificate. Please note that in case of example-TPP.com as certificate entry TPP- Notification-URI like www.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications or notifications.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications would be compliant.  Wildcard definitions shall be taken into account for compliance checks by the ASPSP.  ASPSPs may respond with ASPSP-Notification-Support set to false, if the provided URIs do not comply.
-$tpp_notification_content_preferred = 'tpp_notification_content_preferred_example'; // string | The string has the form   status=X1, ..., Xn  where Xi is one of the constants SCA, PROCESS, LAST and where constants are not repeated. The usage of the constants supports the of following semantics:    SCA: A notification on every change of the scaStatus attribute for all related authorisation processes is preferred by the TPP.    PROCESS: A notification on all changes of consentStatus or transactionStatus attributes is preferred by the TPP.   LAST: Only a notification on the last consentStatus or transactionStatus as available in the XS2A interface is preferred by the TPP.  This header field may be ignored, if the ASPSP does not support resource notification services for the related TPP.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
-$consents = new \BankIO\Sdk\Model\Consents(); // \BankIO\Sdk\Model\Consents | Request body for a consents request.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_id'] = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
+$associate_array['psu_id_type'] = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
+$associate_array['psu_corporate_id'] = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['psu_corporate_id_type'] = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['tpp_redirect_preferred'] = True; // bool | If it equals \"true\", the TPP prefers a redirect over an embedded SCA approach. If it equals \"false\", the TPP prefers not to be redirected for SCA. The ASPSP will then choose between the Embedded or the Decoupled SCA approach, depending on the choice of the SCA procedure by the TPP/PSU. If the parameter is not used, the ASPSP will choose the SCA approach to be applied depending on the SCA method chosen by the TPP/PSU.
+$associate_array['tpp_redirect_uri'] = 'tpp_redirect_uri_example'; // string | URI of the TPP, where the transaction flow shall be redirected to after a Redirect.  Mandated for the Redirect SCA Approach, specifically  when TPP-Redirect-Preferred equals \"true\". It is recommended to always use this header field.  **Remark for Future:**  This field might be changed to mandatory in the next version of the specification.
+$associate_array['tpp_nok_redirect_uri'] = 'tpp_nok_redirect_uri_example'; // string | If this URI is contained, the TPP is asking to redirect the transaction flow to this address instead of the TPP-Redirect-URI in case of a negative result of the redirect SCA method. This might be ignored by the ASPSP.
+$associate_array['tpp_explicit_authorisation_preferred'] = True; // bool | If it equals \"true\", the TPP prefers to start the authorisation process separately,  e.g. because of the usage of a signing basket.  This preference might be ignored by the ASPSP, if a signing basket is not supported as functionality.  If it equals \"false\" or if the parameter is not used, there is no preference of the TPP.  This especially indicates that the TPP assumes a direct authorisation of the transaction in the next step,  without using a signing basket.
+$associate_array['tpp_brand_logging_information'] = 'tpp_brand_logging_information_example'; // string | This header might be used by TPPs to inform the ASPSP about the brand used by the TPP towards the PSU.  This information is meant for logging entries to enhance communication between ASPSP and PSU or ASPSP and TPP.  This header might be ignored by the ASPSP.
+$associate_array['tpp_notification_uri'] = 'tpp_notification_uri_example'; // string | URI for the Endpoint of the TPP-API to which the status of the payment initiation should be sent. This header field may by ignored by the ASPSP.  For security reasons, it shall be ensured that the TPP-Notification-URI as introduced above is secured by the TPP eIDAS QWAC used for identification of the TPP. The following applies:  URIs which are provided by TPPs in TPP-Notification-URI shall comply with the domain secured by the eIDAS QWAC certificate of the TPP in the field CN or SubjectAltName of the certificate. Please note that in case of example-TPP.com as certificate entry TPP- Notification-URI like www.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications or notifications.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications would be compliant.  Wildcard definitions shall be taken into account for compliance checks by the ASPSP.  ASPSPs may respond with ASPSP-Notification-Support set to false, if the provided URIs do not comply.
+$associate_array['tpp_notification_content_preferred'] = 'tpp_notification_content_preferred_example'; // string | The string has the form   status=X1, ..., Xn  where Xi is one of the constants SCA, PROCESS, LAST and where constants are not repeated. The usage of the constants supports the of following semantics:    SCA: A notification on every change of the scaStatus attribute for all related authorisation processes is preferred by the TPP.    PROCESS: A notification on all changes of consentStatus or transactionStatus attributes is preferred by the TPP.   LAST: Only a notification on the last consentStatus or transactionStatus as available in the XS2A interface is preferred by the TPP.  This header field may be ignored, if the ASPSP does not support resource notification services for the related TPP.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['consents'] = new \BankIO\Sdk\Model\Consents(); // \BankIO\Sdk\Model\Consents | Request body for a consents request.
 
 try {
-    $result = $apiInstance->createConsent($organisation, $x_request_id, $tpp_psu_id, $psu_ip_address, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_explicit_authorisation_preferred, $tpp_brand_logging_information, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $consents);
+    $result = $apiInstance->createConsent($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->createConsent: ', $e->getMessage(), PHP_EOL;
@@ -89,6 +90,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -159,32 +162,33 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $apiInstance->deleteConsent($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $apiInstance->deleteConsent($associate_array);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->deleteConsent: ', $e->getMessage(), PHP_EOL;
 }
@@ -192,6 +196,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -250,33 +256,34 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$with_balance = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['with_balance'] = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getAccountList($organisation, $x_request_id, $consent_id, $with_balance, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getAccountList($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getAccountList: ', $e->getMessage(), PHP_EOL;
@@ -285,6 +292,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -344,33 +353,34 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getBalances($organisation, $account_id, $x_request_id, $consent_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getBalances($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getBalances: ', $e->getMessage(), PHP_EOL;
@@ -379,6 +389,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -438,32 +450,33 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getCardAccount($organisation, $x_request_id, $consent_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getCardAccount($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getCardAccount: ', $e->getMessage(), PHP_EOL;
@@ -472,6 +485,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -530,33 +545,34 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getCardAccountBalances($organisation, $account_id, $x_request_id, $consent_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getCardAccountBalances($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getCardAccountBalances: ', $e->getMessage(), PHP_EOL;
@@ -565,6 +581,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -624,39 +642,40 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$booking_status = 'booking_status_example'; // string | Permitted codes are    * \"information\",   * \"booked\",   * \"pending\", and    * \"both\" \"booked\" shall be supported by the ASPSP. To support the \"pending\" and \"both\" feature is optional for the ASPSP,  Error code if not supported in the online banking frontend
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$date_from = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | Conditional: Starting date (inclusive the date dateFrom) of the transaction list, mandated if no delta access is required and if bookingStatus does not equal \"information.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
-$date_to = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | End date (inclusive the data dateTo) of the transaction list, default is \"now\" if not given.   Might be ignored if a delta function is used.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
-$entry_reference_from = 'entry_reference_from_example'; // string | This data attribute is indicating that the AISP is in favour to get all transactions after  the transaction with identification entryReferenceFrom alternatively to the above defined period.  This is a implementation of a delta access.  If this data element is contained, the entries \"dateFrom\" and \"dateTo\" might be ignored by the ASPSP  if a delta report is supported.  Optional if supported by API provider.
-$delta_list = True; // bool | This data attribute is indicating that the AISP is in favour to get all transactions after the last report access for this PSU on the addressed account. This is another implementation of a delta access-report. This delta indicator might be rejected by the ASPSP if this function is not supported. Optional if supported by API provider
-$with_balance = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['booking_status'] = 'booking_status_example'; // string | Permitted codes are    * \"information\",   * \"booked\",   * \"pending\", and    * \"both\" \"booked\" shall be supported by the ASPSP. To support the \"pending\" and \"both\" feature is optional for the ASPSP,  Error code if not supported in the online banking frontend
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['date_from'] = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | Conditional: Starting date (inclusive the date dateFrom) of the transaction list, mandated if no delta access is required and if bookingStatus does not equal \"information.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
+$associate_array['date_to'] = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | End date (inclusive the data dateTo) of the transaction list, default is \"now\" if not given.   Might be ignored if a delta function is used.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
+$associate_array['entry_reference_from'] = 'entry_reference_from_example'; // string | This data attribute is indicating that the AISP is in favour to get all transactions after  the transaction with identification entryReferenceFrom alternatively to the above defined period.  This is a implementation of a delta access.  If this data element is contained, the entries \"dateFrom\" and \"dateTo\" might be ignored by the ASPSP  if a delta report is supported.  Optional if supported by API provider.
+$associate_array['delta_list'] = True; // bool | This data attribute is indicating that the AISP is in favour to get all transactions after the last report access for this PSU on the addressed account. This is another implementation of a delta access-report. This delta indicator might be rejected by the ASPSP if this function is not supported. Optional if supported by API provider
+$associate_array['with_balance'] = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getCardAccountTransactionList($organisation, $account_id, $booking_status, $x_request_id, $consent_id, $date_from, $date_to, $entry_reference_from, $delta_list, $with_balance, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getCardAccountTransactionList($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getCardAccountTransactionList: ', $e->getMessage(), PHP_EOL;
@@ -665,6 +684,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -730,32 +751,33 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getConsentAuthorisation($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getConsentAuthorisation($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getConsentAuthorisation: ', $e->getMessage(), PHP_EOL;
@@ -764,6 +786,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -822,32 +846,33 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getConsentInformation($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getConsentInformation($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getConsentInformation: ', $e->getMessage(), PHP_EOL;
@@ -856,6 +881,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -914,33 +941,34 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$authorisation_id = 'authorisation_id_example'; // string | Resource identification of the related SCA.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['authorisation_id'] = 'authorisation_id_example'; // string | Resource identification of the related SCA.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getConsentScaStatus($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getConsentScaStatus($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getConsentScaStatus: ', $e->getMessage(), PHP_EOL;
@@ -949,6 +977,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1008,32 +1038,33 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getConsentStatus($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getConsentStatus($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getConsentStatus: ', $e->getMessage(), PHP_EOL;
@@ -1042,6 +1073,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1100,34 +1133,35 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$transaction_id = 'transaction_id_example'; // string | This identification is given by the attribute transactionId of the corresponding entry of a transaction list.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['transaction_id'] = 'transaction_id_example'; // string | This identification is given by the attribute transactionId of the corresponding entry of a transaction list.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getTransactionDetails($organisation, $account_id, $transaction_id, $x_request_id, $consent_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getTransactionDetails($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getTransactionDetails: ', $e->getMessage(), PHP_EOL;
@@ -1136,6 +1170,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1196,39 +1232,40 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$booking_status = 'booking_status_example'; // string | Permitted codes are    * \"information\",   * \"booked\",   * \"pending\", and    * \"both\" \"booked\" shall be supported by the ASPSP. To support the \"pending\" and \"both\" feature is optional for the ASPSP,  Error code if not supported in the online banking frontend
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$date_from = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | Conditional: Starting date (inclusive the date dateFrom) of the transaction list, mandated if no delta access is required and if bookingStatus does not equal \"information.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
-$date_to = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | End date (inclusive the data dateTo) of the transaction list, default is \"now\" if not given.   Might be ignored if a delta function is used.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
-$entry_reference_from = 'entry_reference_from_example'; // string | This data attribute is indicating that the AISP is in favour to get all transactions after  the transaction with identification entryReferenceFrom alternatively to the above defined period.  This is a implementation of a delta access.  If this data element is contained, the entries \"dateFrom\" and \"dateTo\" might be ignored by the ASPSP  if a delta report is supported.  Optional if supported by API provider.
-$delta_list = True; // bool | This data attribute is indicating that the AISP is in favour to get all transactions after the last report access for this PSU on the addressed account. This is another implementation of a delta access-report. This delta indicator might be rejected by the ASPSP if this function is not supported. Optional if supported by API provider
-$with_balance = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['booking_status'] = 'booking_status_example'; // string | Permitted codes are    * \"information\",   * \"booked\",   * \"pending\", and    * \"both\" \"booked\" shall be supported by the ASPSP. To support the \"pending\" and \"both\" feature is optional for the ASPSP,  Error code if not supported in the online banking frontend
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['date_from'] = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | Conditional: Starting date (inclusive the date dateFrom) of the transaction list, mandated if no delta access is required and if bookingStatus does not equal \"information.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
+$associate_array['date_to'] = new \DateTime("2013-10-20T19:20:30+01:00"); // \DateTime | End date (inclusive the data dateTo) of the transaction list, default is \"now\" if not given.   Might be ignored if a delta function is used.  For booked transactions, the relevant date is the booking date.   For pending transactions, the relevant date is the entry date, which may not be transparent  neither in this API nor other channels of the ASPSP.
+$associate_array['entry_reference_from'] = 'entry_reference_from_example'; // string | This data attribute is indicating that the AISP is in favour to get all transactions after  the transaction with identification entryReferenceFrom alternatively to the above defined period.  This is a implementation of a delta access.  If this data element is contained, the entries \"dateFrom\" and \"dateTo\" might be ignored by the ASPSP  if a delta report is supported.  Optional if supported by API provider.
+$associate_array['delta_list'] = True; // bool | This data attribute is indicating that the AISP is in favour to get all transactions after the last report access for this PSU on the addressed account. This is another implementation of a delta access-report. This delta indicator might be rejected by the ASPSP if this function is not supported. Optional if supported by API provider
+$associate_array['with_balance'] = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->getTransactionList($organisation, $account_id, $booking_status, $x_request_id, $consent_id, $date_from, $date_to, $entry_reference_from, $delta_list, $with_balance, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->getTransactionList($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->getTransactionList: ', $e->getMessage(), PHP_EOL;
@@ -1237,6 +1274,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1302,34 +1341,35 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$with_balance = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['with_balance'] = True; // bool | If contained, this function reads the list of accessible payment accounts including the booking balance,  if granted by the PSU in the related consent and available by the ASPSP.  This parameter might be ignored by the ASPSP.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->readAccountDetails($organisation, $account_id, $x_request_id, $consent_id, $with_balance, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->readAccountDetails($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->readAccountDetails: ', $e->getMessage(), PHP_EOL;
@@ -1338,6 +1378,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1398,33 +1440,34 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$account_id = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$consent_id = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['account_id'] = 'account_id_example'; // string | This identification is denoting the addressed account.  The account-id is retrieved by using a \"Read account list\" call. The account-id is the \"id\" attribute of the account structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['consent_id'] = 'consent_id_example'; // string | This then contains the consentId of the related AIS consent, which was performed prior to this payment initiation.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
 
 try {
-    $result = $apiInstance->readCardAccount($organisation, $account_id, $x_request_id, $consent_id, $digest, $signature, $tpp_signature_certificate, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location);
+    $result = $apiInstance->readCardAccount($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->readCardAccount: ', $e->getMessage(), PHP_EOL;
@@ -1433,6 +1476,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1492,42 +1537,43 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_id = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
-$psu_id_type = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
-$psu_corporate_id = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$psu_corporate_id_type = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$tpp_redirect_preferred = True; // bool | If it equals \"true\", the TPP prefers a redirect over an embedded SCA approach. If it equals \"false\", the TPP prefers not to be redirected for SCA. The ASPSP will then choose between the Embedded or the Decoupled SCA approach, depending on the choice of the SCA procedure by the TPP/PSU. If the parameter is not used, the ASPSP will choose the SCA approach to be applied depending on the SCA method chosen by the TPP/PSU.
-$tpp_redirect_uri = 'tpp_redirect_uri_example'; // string | URI of the TPP, where the transaction flow shall be redirected to after a Redirect.  Mandated for the Redirect SCA Approach, specifically  when TPP-Redirect-Preferred equals \"true\". It is recommended to always use this header field.  **Remark for Future:**  This field might be changed to mandatory in the next version of the specification.
-$tpp_nok_redirect_uri = 'tpp_nok_redirect_uri_example'; // string | If this URI is contained, the TPP is asking to redirect the transaction flow to this address instead of the TPP-Redirect-URI in case of a negative result of the redirect SCA method. This might be ignored by the ASPSP.
-$tpp_notification_uri = 'tpp_notification_uri_example'; // string | URI for the Endpoint of the TPP-API to which the status of the payment initiation should be sent. This header field may by ignored by the ASPSP.  For security reasons, it shall be ensured that the TPP-Notification-URI as introduced above is secured by the TPP eIDAS QWAC used for identification of the TPP. The following applies:  URIs which are provided by TPPs in TPP-Notification-URI shall comply with the domain secured by the eIDAS QWAC certificate of the TPP in the field CN or SubjectAltName of the certificate. Please note that in case of example-TPP.com as certificate entry TPP- Notification-URI like www.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications or notifications.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications would be compliant.  Wildcard definitions shall be taken into account for compliance checks by the ASPSP.  ASPSPs may respond with ASPSP-Notification-Support set to false, if the provided URIs do not comply.
-$tpp_notification_content_preferred = 'tpp_notification_content_preferred_example'; // string | The string has the form   status=X1, ..., Xn  where Xi is one of the constants SCA, PROCESS, LAST and where constants are not repeated. The usage of the constants supports the of following semantics:    SCA: A notification on every change of the scaStatus attribute for all related authorisation processes is preferred by the TPP.    PROCESS: A notification on all changes of consentStatus or transactionStatus attributes is preferred by the TPP.   LAST: Only a notification on the last consentStatus or transactionStatus as available in the XS2A interface is preferred by the TPP.  This header field may be ignored, if the ASPSP does not support resource notification services for the related TPP.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
-$unknown_base_type = new \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE(); // \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE | 
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_id'] = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
+$associate_array['psu_id_type'] = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
+$associate_array['psu_corporate_id'] = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['psu_corporate_id_type'] = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['tpp_redirect_preferred'] = True; // bool | If it equals \"true\", the TPP prefers a redirect over an embedded SCA approach. If it equals \"false\", the TPP prefers not to be redirected for SCA. The ASPSP will then choose between the Embedded or the Decoupled SCA approach, depending on the choice of the SCA procedure by the TPP/PSU. If the parameter is not used, the ASPSP will choose the SCA approach to be applied depending on the SCA method chosen by the TPP/PSU.
+$associate_array['tpp_redirect_uri'] = 'tpp_redirect_uri_example'; // string | URI of the TPP, where the transaction flow shall be redirected to after a Redirect.  Mandated for the Redirect SCA Approach, specifically  when TPP-Redirect-Preferred equals \"true\". It is recommended to always use this header field.  **Remark for Future:**  This field might be changed to mandatory in the next version of the specification.
+$associate_array['tpp_nok_redirect_uri'] = 'tpp_nok_redirect_uri_example'; // string | If this URI is contained, the TPP is asking to redirect the transaction flow to this address instead of the TPP-Redirect-URI in case of a negative result of the redirect SCA method. This might be ignored by the ASPSP.
+$associate_array['tpp_notification_uri'] = 'tpp_notification_uri_example'; // string | URI for the Endpoint of the TPP-API to which the status of the payment initiation should be sent. This header field may by ignored by the ASPSP.  For security reasons, it shall be ensured that the TPP-Notification-URI as introduced above is secured by the TPP eIDAS QWAC used for identification of the TPP. The following applies:  URIs which are provided by TPPs in TPP-Notification-URI shall comply with the domain secured by the eIDAS QWAC certificate of the TPP in the field CN or SubjectAltName of the certificate. Please note that in case of example-TPP.com as certificate entry TPP- Notification-URI like www.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications or notifications.example-TPP.com/xs2a-client/v1/ASPSPidentifcation/mytransaction- id/notifications would be compliant.  Wildcard definitions shall be taken into account for compliance checks by the ASPSP.  ASPSPs may respond with ASPSP-Notification-Support set to false, if the provided URIs do not comply.
+$associate_array['tpp_notification_content_preferred'] = 'tpp_notification_content_preferred_example'; // string | The string has the form   status=X1, ..., Xn  where Xi is one of the constants SCA, PROCESS, LAST and where constants are not repeated. The usage of the constants supports the of following semantics:    SCA: A notification on every change of the scaStatus attribute for all related authorisation processes is preferred by the TPP.    PROCESS: A notification on all changes of consentStatus or transactionStatus attributes is preferred by the TPP.   LAST: Only a notification on the last consentStatus or transactionStatus as available in the XS2A interface is preferred by the TPP.  This header field may be ignored, if the ASPSP does not support resource notification services for the related TPP.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['unknown_base_type'] = new \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE(); // \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE | 
 
 try {
-    $result = $apiInstance->startConsentAuthorisation($organisation, $consent_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $tpp_redirect_preferred, $tpp_redirect_uri, $tpp_nok_redirect_uri, $tpp_notification_uri, $tpp_notification_content_preferred, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+    $result = $apiInstance->startConsentAuthorisation($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->startConsentAuthorisation: ', $e->getMessage(), PHP_EOL;
@@ -1536,6 +1582,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes
@@ -1604,38 +1652,39 @@ require_once(__DIR__ . '/vendor/autoload.php');
 $config = BankIO\Sdk\Configuration::getDefaultConfiguration()->setAccessToken('YOUR_ACCESS_TOKEN');
 
 
+$client = HttpClientDiscovery::find();
 $apiInstance = new BankIO\Sdk\Api\AccountInformationServiceAISApi(
-    // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
-    // This is optional, `GuzzleHttp\Client` will be used as default.
-    new GuzzleHttp\Client(),
+    // If you want use custom http client, pass your client which implements `Http\Client\HttpClient`.
+    // This is optional, `HTTPlug` will be used as default.
+    $client,
     $config
 );
-$organisation = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
-$consent_id = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
-$authorisation_id = 'authorisation_id_example'; // string | Resource identification of the related SCA.
-$x_request_id = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
-$digest = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
-$signature = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
+$associate_array['organisation'] = 'organisation_example'; // string | This identification is denoting the addressed bankIO organisation. The organisation is the \"name\" attribute of the organisation structure.  Its value is constant at least throughout the lifecycle of a given consent.
+$associate_array['consent_id'] = 'consent_id_example'; // string | ID of the corresponding consent object as returned by an account information consent request.
+$associate_array['authorisation_id'] = 'authorisation_id_example'; // string | Resource identification of the related SCA.
+$associate_array['x_request_id'] = '99391c7e-ad88-49ec-a2ad-99ddcb1f7721'; // string | ID of the request, unique to the call, as determined by the initiating party.
+$associate_array['digest'] = 'SHA-256=hl1/Eps8BEQW58FJhDApwJXjGY4nr1ArGDHIT25vq6A='; // string | Is contained if and only if the \"Signature\" element is contained in the header of the request.
+$associate_array['signature'] = 'keyId="SN=9FA1,CA=CN=D-TRUST%20CA%202-1%202015,O=D-Trust%20GmbH,C=DE",algorithm="rsa-sha256", headers="Digest X-Request-ID PSU-ID TPP-Redirect-URI Date", signature="Base64(RSA-SHA256(signing string))"'
 ; // string | A signature of the request by the TPP on application level. This might be mandated by ASPSP.
-$tpp_signature_certificate = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
-$psu_id = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
-$psu_id_type = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
-$psu_corporate_id = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$psu_corporate_id_type = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
-$psu_ip_address = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
-$psu_ip_port = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
-$psu_accept = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_charset = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_encoding = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_accept_language = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
-$psu_user_agent = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
-$psu_http_method = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
-$psu_device_id = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
-$psu_geo_location = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
-$unknown_base_type = {}; // \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE | 
+$associate_array['tpp_signature_certificate'] = 'tpp_signature_certificate_example'; // string | The certificate used for signing the request, in base64 encoding.  Must be contained if a signature is contained.
+$associate_array['psu_id'] = 'PSU-1234'; // string | Client ID of the PSU in the ASPSP client interface.   Might be mandated in the ASPSP's documentation.  It might be contained even if an OAuth2 based authentication was performed in a pre-step or an OAuth2 based SCA was performed in an preceding AIS service in the same session. In this case the ASPSP might check whether PSU-ID and token match,  according to ASPSP documentation.
+$associate_array['psu_id_type'] = 'psu_id_type_example'; // string | Type of the PSU-ID, needed in scenarios where PSUs have several PSU-IDs as access possibility.  In this case, the mean and use are then defined in the ASPSP’s documentation.
+$associate_array['psu_corporate_id'] = 'psu_corporate_id_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['psu_corporate_id_type'] = 'psu_corporate_id_type_example'; // string | Might be mandated in the ASPSP's documentation. Only used in a corporate context.
+$associate_array['psu_ip_address'] = '192.168.8.78'; // string | The forwarded IP Address header field consists of the corresponding HTTP request  IP Address field between PSU and TPP.  It shall be contained if and only if this request was actively initiated by the PSU.
+$associate_array['psu_ip_port'] = 1234; // string | The forwarded IP Port header field consists of the corresponding HTTP request IP Port field between PSU and TPP, if available.
+$associate_array['psu_accept'] = 'psu_accept_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_charset'] = 'psu_accept_charset_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_encoding'] = 'psu_accept_encoding_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_accept_language'] = 'psu_accept_language_example'; // string | The forwarded IP Accept header fields consist of the corresponding HTTP request Accept header fields between PSU and TPP, if available.
+$associate_array['psu_user_agent'] = 'psu_user_agent_example'; // string | The forwarded Agent header field of the HTTP request between PSU and TPP, if available.
+$associate_array['psu_http_method'] = 'psu_http_method_example'; // string | HTTP method used at the PSU ? TPP interface, if available. Valid values are: * GET * POST * PUT * PATCH * DELETE
+$associate_array['psu_device_id'] = '99435c7e-ad88-49ec-a2ad-99ddcb1f5555'; // string | UUID (Universally Unique Identifier) for a device, which is used by the PSU, if available. UUID identifies either a device or a device dependant application installation. In case of an installation identification this ID needs to be unaltered until removal from device.
+$associate_array['psu_geo_location'] = 'GEO:52.506931;13.144558'; // string | The forwarded Geo Location of the corresponding http request between PSU and TPP if available.
+$associate_array['unknown_base_type'] = {}; // \BankIO\Sdk\Model\UNKNOWN_BASE_TYPE | 
 
 try {
-    $result = $apiInstance->updateConsentsPsuData($organisation, $consent_id, $authorisation_id, $x_request_id, $digest, $signature, $tpp_signature_certificate, $psu_id, $psu_id_type, $psu_corporate_id, $psu_corporate_id_type, $psu_ip_address, $psu_ip_port, $psu_accept, $psu_accept_charset, $psu_accept_encoding, $psu_accept_language, $psu_user_agent, $psu_http_method, $psu_device_id, $psu_geo_location, $unknown_base_type);
+    $result = $apiInstance->updateConsentsPsuData($associate_array);
     print_r($result);
 } catch (Exception $e) {
     echo 'Exception when calling AccountInformationServiceAISApi->updateConsentsPsuData: ', $e->getMessage(), PHP_EOL;
@@ -1644,6 +1693,8 @@ try {
 ```
 
 ### Parameters
+
+Note: the input parameter is an associative array with the keys listed as the parameter name below.
 
 
 Name | Type | Description  | Notes

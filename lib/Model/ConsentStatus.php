@@ -6,8 +6,8 @@
  *
  * @category Class
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 
 /**
@@ -36,8 +36,8 @@ use \BankIO\Sdk\ObjectSerializer;
  * @category Class
  * @description This is the overall lifecycle status of the consent.  Valid values are:   - &#39;received&#39;: The consent data have been received and are technically correct.      The data is not authorised yet.   - &#39;rejected&#39;: The consent data have been rejected e.g. since no successful authorisation has taken place.   - &#39;valid&#39;: The consent is accepted and valid for GET account data calls and others as specified in the consent object.   - &#39;revokedByPsu&#39;: The consent has been revoked by the PSU towards the ASPSP.   - &#39;expired&#39;: The consent expired.   - &#39;terminatedByTpp&#39;: The corresponding TPP has terminated the consent by applying the DELETE method to the consent resource.   - &#39;partiallyAuthorised&#39;: The consent is due to a multi-level authorisation, some but not all mandated authorisations have been performed yet.  The ASPSP might add further codes. These codes then shall be contained in the ASPSP&#39;s documentation of the XS2A interface  and has to be added to this API definition as well.
  * @package  BankIO\Sdk
- * @author   OpenAPI Generator team
- * @link     https://openapi-generator.tech
+ * @author   bankIO
+ * @link     https://bankio.co.uk/bankio-link/
  */
 class ConsentStatus
 {
