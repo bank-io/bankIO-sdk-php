@@ -35,7 +35,8 @@ use Http\Discovery\HttpClientDiscovery;
 use Http\Discovery\HttpAsyncClientDiscovery;
 use Http\Discovery\MessageFactoryDiscovery;
 use Http\Discovery\StreamFactoryDiscovery;
-use Http\Client\Exception\RequestException;
+use Http\Client\Exception\NetworkException;
+use Http\Client\Exception\HttpException;
 use Http\Message\StreamFactory;
 use Http\Message\MultipartStream\MultipartStreamBuilder;
 use Psr\Http\Message\RequestInterface;
@@ -234,12 +235,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -951,12 +957,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -1431,12 +1442,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -2065,12 +2081,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -2700,12 +2721,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -3319,12 +3345,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -3968,12 +3999,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -4699,12 +4735,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -5320,12 +5361,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -5943,12 +5989,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -6582,12 +6633,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -7207,12 +7263,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -7874,12 +7935,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -8609,12 +8675,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -9261,12 +9332,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -9916,12 +9992,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
@@ -10628,12 +10709,17 @@ class AccountInformationServiceAISApi
             // $options = $this->createHttpClientOption();
             try {
                 $response = $this->client->sendRequest($request);
-            } catch (RequestException $e) {
+            } catch (HttpException $e) {
                 throw new ApiException(
                     "[{$e->getCode()}] {$e->getMessage()}",
                     $e->getCode(),
                     $e->getResponse() ? $e->getResponse()->getHeaders() : null,
                     $e->getResponse() ? (string) $e->getResponse()->getBody() : null
+                );
+            } catch (NetworkException $e) {
+                throw new ApiException(
+                    "[{$e->getCode()}] {$e->getMessage()}",
+                    $e->getCode()
                 );
             }
 
